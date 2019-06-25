@@ -3,5 +3,9 @@ html
   head
     title Webzone Name
     link(rel="stylesheet" type="text/css" href="/css/styles.css")
+    script(src="/js/formSubmit.js")
   body
-    p #{username}
+    center
+      div(id="question")
+        form(onsubmit="return sendToServer()")
+          input(type="text" id="questionInput")

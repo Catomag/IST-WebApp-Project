@@ -12,15 +12,9 @@ app.listen(port, () => {
 });
 
 app.get("/", (req, res) => {
-  res.render("index.pug", {
-    username: "default",
-  });
+  res.render("index.pug");
 });
 
-app.get("/:username/", (req, res) => {
-  var username = req.params.username;
+app.get("/id/:id/", (req, res) => {
 
-  res.render("index.pug", {
-    username: username,
-  });
 });
