@@ -7,5 +7,6 @@ html
   body
     center
       div(id="question")
-        form(onsubmit="return sendToServer()")
+        p(id="idThing")
+        form(onsubmit="sendToServer()")
           input(type="text" id="questionInput")

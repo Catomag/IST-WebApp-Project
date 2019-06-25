@@ -10,16 +10,15 @@ html {
 }
 
 input[type="text"] {
-  color: white;
+  color: black;
   border: 0px;
-  border
-  background-color: rgba(0, 0, 0, 0);
+  /*background-color: rgba(0, 0, 0, 0);*/
 }
 
 
 /* Id */
 #title {
-  
+
 }
 
 /* Animations */
