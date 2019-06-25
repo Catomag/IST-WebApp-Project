@@ -1,0 +1,23 @@
+html {
+  font-family: arial;
+  color: white;
+  margin: 0px;
+  animation-name: backgroundColorChange;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes backgroundColorChange {
+  0% {
+    background-color: rgb(54, 47, 65);
+  }
+
+  50% {
+    background-color: rgb(62, 52, 77);
+  }
+
+  100% {
+    background-color: rgb(54, 47, 65);
+  }
+
+}

@@ -14,7 +14,6 @@ app.listen(port, () => {
 app.get("/", (req, res) => {
   res.render("index.pug", {
     username: "default",
-    password: "password"
   });
 });
 
@@ -23,16 +22,5 @@ app.get("/:username/", (req, res) => {
 
   res.render("index.pug", {
     username: username,
-    password: "password"
-  });m
-});
-
-app.get("/:username/:password/", (req, res) => {
-  var username = req.params.username;
-  var password = req.params.password;
-
-  res.render("index.pug", {
-    username: username,
-    password: password
   });
 });
