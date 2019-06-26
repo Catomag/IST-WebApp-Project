@@ -25,6 +25,8 @@ p {
 #question {
   width: 20%;
   height: 5%;
+  min-height: 48px;
+  min-width: 250px;
   display: block;
   background-color: green;
 }
@@ -72,6 +74,13 @@ p {
 
 .sideToSide {
   animation: sideToSide 1s infinite;
+}
+
+.verticalCentre {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
 }
 
 
