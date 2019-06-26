@@ -17,11 +17,13 @@ app.listen(port, () => {
 
 //Host variables
 
-var hostTemplate = {
-  id: "",
-  question: "",
-  playerCount: 0,
-  votes: []
+class hostTemplate {
+  constructor(question) {
+    this.id = "";
+    this.question = question;
+    this.playerCount = 0;
+    this.votes = [];
+  }
 }
 
 var hosts = [];
@@ -34,7 +36,8 @@ app.get("/", (req, res) => {
   res.render("index.pug");
 });
 
-app.get("/:id/", (req, res) => {
+//Redirect to game
+app.get("/id/:id/", (req, res) => {
 
 });
 
@@ -43,14 +46,14 @@ app.get("/:id/", (req, res) => {
 
 //Creates a new game and returns id
 app.post("/create/:question/", (req, res) => {
-  var temp = new hostTemplate;
-  temp.question = req.params.question;
-  temp.id = makeid(12);
+  var newHost = new hostTemplate(req.params.question);
+  newHost.id = makeid(12);
   /*var votes = JSON.parse(req.params.votes);
   for (var i = 0; i < votes.length; i++) {
     temp.votes.push(votes[i]);
   }*/
-  res.send(temp.id);
+
+  res.send(JSON.stringify(newHost));
 });
 
 //Gets info from existing id
