@@ -33,12 +33,28 @@ var hosts = [];
 
 //Standard response
 app.get("/", (req, res) => {
-  res.render("index.pug");
+  res.render("join");
+});
+
+//
+app.get("/create/", (req, res) => {
+  res.render("question");
 });
 
 //Redirect to game
 app.get("/id/:id/", (req, res) => {
-
+  var id = req.params.id;
+  res.type('text/plain');
+  console.log("Recieved request for id: " + id);
+  for(var i = 0; i < hosts.length; i++) {
+    console.log("Comparing " + id + " with " + hosts[i].id);
+    if(hosts[i].id == id) {
+      console.log("Id found");
+      res.send(JSON.stringify(hosts[i]));
+    }
+  }
+  console.log("Id not found");
+  res.send("null");
 });
 
 
@@ -52,11 +68,11 @@ app.post("/create/:question/", (req, res) => {
   for (var i = 0; i < votes.length; i++) {
     temp.votes.push(votes[i]);
   }*/
-
-  res.send(JSON.stringify(newHost));
+  hosts.push(newHost);
+  res.json(newHost);
 });
 
-//Gets info from existing id
+//Gets info from existing id~
 app.post("/id/:id/", (req, res) => {
   var id = req.params.id;
   for(var i = 0; i < hosts.length; i++) {

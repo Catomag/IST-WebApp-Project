@@ -1,4 +1,4 @@
-function sendToServer() {
+function createHost() {
   var questionInput = document.getElementById("questionInput");
   var url = "http://" + window.location.host + "/create/" + questionInput.value;
   var data = {}
@@ -9,10 +9,17 @@ function sendToServer() {
   });
 
   fetch(request)
+  .then((resp) => resp.json())
   .then((data) => {
     console.log("this ran");
-    console.log("Host id is: " + data);
-    document.getElementById("idThing").value = data.id;
+    console.log(data);
+    console.log("Host id is: " + data.id);
   });
   return false;
+}
+
+function connectHost() {
+  var questionInput = document.getElementById("questionInput");
+  var url = "http://" + window.location.host + "/id/" + questionInput.value;
+  window.location.replace(url);
 }

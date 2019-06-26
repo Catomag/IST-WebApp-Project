@@ -6,7 +6,7 @@ html
     script(src="/js/formSubmit.js")
   body
     center
+      p(class="bigText") Enter PIN
       div(id="question")
-        p(id="idThing")
-        form(onsubmit="sendToServer()")
+        form(onsubmit="connectHost(); return false")
           input(type="text" id="questionInput")
