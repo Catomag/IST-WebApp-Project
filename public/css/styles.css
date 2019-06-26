@@ -35,10 +35,43 @@ p {
   font-size: 24pt;
 }
 
+#plus {
+  min-width: 80px;
+  min-height: 80px;
+  background-color: rgb(121, 69, 143);
+  position: relative;
+  float: right;
+  bottom: 0px;
+  padding: 0%;
+}
+
+#plus:hover {
+  animation: buttonAnimateHover .1s;
+  background-color: rgb(93, 38, 102);
+}
+
+#overlay {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+#footnote {
+
+}
+
 
 /* Class */
 .bigText {
   font-size: 40pt;
+}
+
+.circle {
+  border-radius: 100%;
+}
+
+.sideToSide {
+  animation: sideToSide 1s infinite;
 }
 
 
@@ -55,5 +88,29 @@ p {
 
   100% {
     background-color: rgb(54, 47, 65);
+  }
+}
+
+@keyframes buttonAnimateHover {
+  0% {
+    background-color: rgb(121, 69, 143);
+  }
+
+  100% {
+    background-color: rgb(93, 38, 102);
+  }
+}
+
+@keyframes sideToSide {
+  0% {
+    transform: rotate(2.5deg);
+  }
+
+  51% {
+    transform: rotate(-5deg);
+  }
+
+  100% {
+    transform: rotate(2.5deg);
   }
 }

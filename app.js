@@ -2,7 +2,7 @@
 const express = require("express");
 const path = require("path");
 const port = 3000;
-
+var address;
 
 //Sets up the server
 const app = express();
@@ -10,8 +10,9 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(express.static("public"));
 
-app.listen(port, () => {
-  console.log("Server listening on port " + port);
+var server = app.listen(port, 'localhost', () => {
+  console.log("Server listening on port: " + port + " and address: " + server.address().address);
+  address = server.address().address;
 });
 
 

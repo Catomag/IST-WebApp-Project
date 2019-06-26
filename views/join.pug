@@ -3,10 +3,12 @@ html
   head
     title Webzone Name
     link(rel="stylesheet" type="text/css" href="/css/styles.css")
+    script(src="/js/helper.js")
     script(src="/js/formSubmit.js")
   body
     center
-      p(class="bigText") Enter PIN
+      p(class="bigText sideToSide") Enter PIN 
+      br
       div(id="question")
         form(onsubmit="connectHost(); return false")
           input(type="text" id="questionInput")
