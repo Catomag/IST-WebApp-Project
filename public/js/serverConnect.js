@@ -1,24 +1,29 @@
 var id = "null";
+var lastQuestion = "";
 var time = 0;
 
 function createHost() {
   var questionInput = document.getElementById("questionInput");
-  var url = "http://" + window.location.host + "/create/" + questionInput.value;
-  var data = {}
-  var request = new Request(url, {
-    method: 'POST',
-    body: data,
-    headers: new Headers()
-  });
 
-  fetch(request)
-  .then((resp) => resp.json())
-  .then((data) => {
-    console.log("this ran");
-    console.log(data);
-    console.log("Host id is: " + data.id);
-    id = data.id;
-  });
+  if(id == "null" || questionInput != lastQuestion) {
+    var url = "http://" + window.location.host + "/create/" + questionInput.value;
+    var data = {}
+    var request = new Request(url, {
+      method: 'POST',
+      body: data,
+      headers: new Headers()
+    });
+
+    fetch(request)
+    .then((resp) => resp.json())
+    .then((data) => {
+      console.log("this ran");
+      console.log(data);
+      console.log("Host id is: " + data.id);
+      id = data.id;
+    });
+  }
+  lastQuestion = questionInput;
   return false;
 }
 
@@ -38,7 +43,6 @@ var heartbeat = setInterval(() => {
       headers: new Headers()
     });
     fetch(request);
-    console.log("Pinged! " + time);
     time++;
   }
 }, 800);

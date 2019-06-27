@@ -7,10 +7,10 @@ html
     script(src="/js/serverConnect.js")
   body
     center
-      p(class="bigText sideToSide") Enter PIN 
-      br
-      div(id="question")
-        form(onsubmit="connectHost(); return false")
-          input(type="text" id="questionInput")
-    div(id="footer")
-      
+      div
+        div(id="floater")
+        p(class="bigText sideToSide") Enter PIN
+        br
+        div(id="pin")
+          form(onsubmit="connectHost(); return false")
+            input(type="text" id="questionInput" maxlength="5")

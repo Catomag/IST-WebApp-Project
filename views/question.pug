@@ -7,8 +7,10 @@ html
     script(src="/js/serverConnect.js")
   body
     center
-      div(id="question" class="verticalCentre")
-        form(onsubmit="createHost(); return false")
-          input(type="text" id="questionInput")
+      div
+        div(id="floater")
+        div(id="question" class="verticalCentre")
+          form(onsubmit="createHost(); return false")
+            input(type="text" id="questionInput" maxlength="40")
     span(onclick="confirm('clicked')" id="plus" class="circle")
       img(src="/img/Plus.png" width="50px" height="50px" style="margin: 20px" )
