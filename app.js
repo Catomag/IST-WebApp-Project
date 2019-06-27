@@ -4,16 +4,21 @@ const path = require("path");
 const port = 3000;
 var address;
 
-//Sets up the server
+//Sets up the server and prints connection info
 const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(express.static("public"));
 
-var server = app.listen(port, 'localhost', () => {
-  console.log("Server listening on port: " + port + " and address: " + server.address().address);
-  address = server.address().address;
+app.listen(port, '', () => {
+  console.log("Port: " + port);
 });
+
+require('dns').lookup(require('os').hostname(), function (err, add, fam) {
+  address = add;
+  console.log('Address: ' + add);
+  console.log('Link: ' + address + ":" + port);
+})
 
 
 //Host variables
@@ -23,11 +28,44 @@ class hostTemplate {
     this.id = "";
     this.question = question;
     this.playerCount = 0;
+    this.lastupdate = 0;
     this.votes = [];
   }
 }
 
+class playerTemplate {
+  constructor(gameid, playerid) {
+    this.gameid = gameid;
+    this.playerid = playerid;
+    this.lastupdate = 0;
+  }
+}
+
 var hosts = [];
+var players = [];
+
+
+//Heartbeat to check periodically whether players are connected or not
+setInterval(() => {
+  for (var i = 0; i < players.length; i++) {
+    if(players[i].lastupdate > 2) {
+      players.splice(i, 1);
+    }
+    else {
+      players[i].lastupdate++;
+    }
+  }
+
+  for (var i = 0; i < hosts.length; i++) {
+    if(hosts[i].lastupdate > 2) {
+      console.log("Removed host " + JSON.stringify(hosts[i]));
+      hosts.splice(i, 1);
+    }
+    else {
+      hosts[i].lastupdate++;
+    }
+  }
+}, 500);
 
 
 //Get requests (Requests visible in the url)
@@ -52,6 +90,7 @@ app.get("/id/:id/", (req, res) => {
     if(hosts[i].id == id) {
       console.log("Id found");
       res.send(JSON.stringify(hosts[i]));
+      return;
     }
   }
   console.log("Id not found");
@@ -64,11 +103,7 @@ app.get("/id/:id/", (req, res) => {
 //Creates a new game and returns id
 app.post("/create/:question/", (req, res) => {
   var newHost = new hostTemplate(req.params.question);
-  newHost.id = makeid(12);
-  /*var votes = JSON.parse(req.params.votes);
-  for (var i = 0; i < votes.length; i++) {
-    temp.votes.push(votes[i]);
-  }*/
+  newHost.id = makeid(5);
   hosts.push(newHost);
   res.json(newHost);
 });
@@ -79,6 +114,34 @@ app.post("/id/:id/", (req, res) => {
   for(var i = 0; i < hosts.length; i++) {
     if(hosts[i].id == id) {
       res.send(JSON.stringify(hosts[i]));
+    }
+  }
+  res.send("null");
+});
+
+//Gets ping from server so its still active
+app.post('/hostPing/:id/', (req, res) => {
+  var id = req.params.id;
+  for(var i = 0; i < hosts.length; i++) {
+    if(hosts[i].id == id) {
+      hosts[i].lastupdate = 0;
+      console.log("Host: " + id + " just pinged!");
+      res.json(hosts[i]);
+      return;
+    }
+  }
+  res.send("null");
+});
+
+//Gets ping from server so its still active
+app.post('/playerPing/:id/', (req, res) => {
+  var id = req.params.id;
+  for(var i = 0; i < hosts.length; i++) {
+    if(players[i].id == id) {
+      players[i].lastupdate = 0;
+      console.log("Player: " + id + " just pinged!");
+      res.json(players[i]);
+      return;
     }
   }
   res.send("null");
