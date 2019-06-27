@@ -13,7 +13,7 @@ input[type="text"] {
   display: inline-block;
   color: black;
   border: 0px;
-  border-radius: 20px;
+  border-radius: 15px;
   /*background-color: rgba(0, 0, 0, 0);*/
 }
 
@@ -37,10 +37,10 @@ p {
 }
 
 #pin {
-  width: 7%;
-  height: 5%;
-  min-height: 50px;
-  min-width: 100px;
+  width: 10vw;
+  height: 5vh;
+  /*min-height: 50px;
+  min-width: 100px;*/
   text-align: center;
 }
 
@@ -48,17 +48,15 @@ p {
   width: 100%;
   height: 100%;
   font-size: 24pt;
-  padding-left: 12px;
 }
 
 #plus {
   min-width: 80px;
   min-height: 80px;
   background-color: rgb(121, 69, 143);
-  position: relative;
+  position: absolute;
   float: right;
-  bottom: 0px;
-  padding: 0%;
+  bottom: 30px;
 }
 
 #plus:hover {
@@ -136,4 +134,12 @@ p {
   100% {
     transform: rotate(2.5deg);
   }
+}
+
+
+/* Fonts */
+
+@font-face {
+  font-family: roboto;
+  src: url(/fonts/Roboto-Regular.ttf);
 }

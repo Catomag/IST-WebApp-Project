@@ -239,7 +239,15 @@ function getUniquePlayerId() {
 function getHost(id) {
   for (var i = 0; i < hosts.length; i++) {
     if(hosts[i] == id) {
+      return hosts[i];
+    }
+  }
+}
 
+function getHostIndex(id) {
+  for (var i = 0; i < hosts.length; i++) {
+    if(hosts[i] == id) {
+      return i;
     }
   }
 }

@@ -5,7 +5,7 @@ var time = 0;
 function createHost() {
   var questionInput = document.getElementById("questionInput");
 
-  if(id == "null" || questionInput != lastQuestion) {
+  if(id == "null" || questionInput .value != lastQuestion) {
     var url = "http://" + window.location.host + "/create/" + questionInput.value;
     var data = {}
     var request = new Request(url, {
@@ -21,16 +21,17 @@ function createHost() {
       console.log(data);
       console.log("Host id is: " + data.id);
       id = data.id;
+      document.getElementById("hostId").innerHTML = "Id is: " + id;
     });
   }
-  lastQuestion = questionInput;
+  lastQuestion = questionInput.value;
   return false;
 }
 
 function connectHost() {
   var questionInput = document.getElementById("questionInput");
   var url = "http://" + window.location.host + "/id/" + questionInput.value;
-  window.location.replace(url);
+  window.location.href = url;
 }
 
 var heartbeat = setInterval(() => {
