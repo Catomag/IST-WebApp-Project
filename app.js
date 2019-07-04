@@ -12,13 +12,12 @@ app.set('view engine', 'pug');
 app.use(express.static("public"));
 
 app.listen(port, '', () => {
-  console.log("Port: " + port);
+  console.log("Port: \x1b[33m" + port + "\x1b[0m");
 });
 
 require('dns').lookup(require('os').hostname(), function (err, add, fam) {
   address = add;
-  console.log('Address: ' + add);
-  console.log('Link: ' + address + ":" + port);
+  console.log('Link: ' + "\x1b[33m" + address + ":" + port + "\x1b[0m");
 })
 
 
@@ -89,12 +88,12 @@ app.get("/id/:id/", (req, res) => {
   for(var i = 0; i < hosts.length; i++) {
     if(hosts[i].id == id) {
       console.log("Id found");
-      res.send(JSON.stringify(hosts[i]));
+      res.json(hosts[i]);
       return;
     }
   }
   console.log("Id not found");
-  res.send("null");
+  res.json(null);
 });
 
 
@@ -129,20 +128,19 @@ app.post("/setPlayerName/:id/:name/", (req, res) => {
       return;
     }
   }
-
-  res.send("null");
+  res.json(null);
 });
 
 app.post("/getPlayer/:id/", (req, res) => {
   var id = req.params.id;
   for (var i = 0; i < players.length; i++) {
     if(players[i].id == id) {
+
       res.json(players[i]);
       return;
     }
   }
-
-  res.send("null");
+  res.json(null);
 });
 
 //Gets info from existing id~
@@ -150,24 +148,24 @@ app.post("/id/:id/", (req, res) => {
   var id = req.params.id;
   for(var i = 0; i < hosts.length; i++) {
     if(hosts[i].id == id) {
-      res.send(JSON.stringify(hosts[i]));
+      res.json(hosts[i]);
+      return;
     }
   }
-  res.send("null");
+
+  res.json(null);
 });
 
 //Gets ping from server so its still active
 app.post('/hostPing/:id/', (req, res) => {
   var id = req.params.id;
-  for(var i = 0; i < hosts.length; i++) {
-    if(hosts[i].id == id) {
-      hosts[i].lastupdate = 0;
-      //console.log("Host: " + id + " just pinged!");
-      res.json(hosts[i]);
-      return;
-    }
+  var host = hosts[getHostIndex(id)];
+  if(host != null) {
+    host.lastupdate = 0;
+    res.json(host);
+    return;
   }
-  res.send("null");
+  res.json(null);
 });
 
 //Gets ping from server so its still active
@@ -181,7 +179,7 @@ app.post('/playerPing/:id/', (req, res) => {
       return;
     }
   }
-  res.send("null");
+  res.json(null);
 });
 
 
@@ -238,7 +236,7 @@ function getUniquePlayerId() {
 
 function getHost(id) {
   for (var i = 0; i < hosts.length; i++) {
-    if(hosts[i] == id) {
+    if(hosts[i].id == id) {
       return hosts[i];
     }
   }
@@ -246,8 +244,17 @@ function getHost(id) {
 
 function getHostIndex(id) {
   for (var i = 0; i < hosts.length; i++) {
-    if(hosts[i] == id) {
+    if(hosts[i].id == id) {
       return i;
+    }
+  }
+}
+
+function getPlayer(gameid, id) {
+  var host = getHost(gameid);
+  for (var i = 0; i < host.players.length; i++) {
+    if(host.players[i].id == id) {
+      return host.players[i];
     }
   }
 }
