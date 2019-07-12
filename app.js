@@ -68,17 +68,26 @@ setInterval(() => {
 }, 500);
 
 
-//Get requests (Requests visible in the url)
+//----------------------------------------------------------------------------------------------------------------------
+
 
 //Standard response
 app.get("/", (req, res) => {
   res.render("join");
 });
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
 //Question creator
 app.get("/create/", (req, res) => {
   res.render("question");
 });
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
 
 //Redirect to game
 app.get("/id/:id/", (req, res) => {
@@ -97,7 +106,8 @@ app.get("/id/:id/", (req, res) => {
 });
 
 
-//Post requests (Hidden requests)
+//----------------------------------------------------------------------------------------------------------------------
+
 
 //Creates a new game and returns info
 app.post("/create/:question/", (req, res) => {
@@ -108,14 +118,26 @@ app.post("/create/:question/", (req, res) => {
   res.json(newHost);
 });
 
-//Creates a new player and returns info
-app.post("/createPlayer/:game/", (req, res) => {
-  var newPlayer = new playerTemplate(req.params.game, getUniquePlayerId());
 
-  players.push(newPlayer);
-  console.log("Player: " + newPlayer.id + " created for question: " + newPlayer.gameid);
+//----------------------------------------------------------------------------------------------------------------------
+
+
+//Creates a new player and returns info
+app.post("/join/:game/", (req, res) => {
+  var host = getHost(req.params.game);
+  var newPlayer;
+
+  if(host != null) {
+    newPlayer = new playerTemplate(host.id, getUniquePlayerId());
+    players.push(newPlayer);
+    console.log("Player: " + newPlayer.id + " created for question: " + newPlayer.gameid);
+  }
   res.json(newPlayer);
 });
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
 
 //Creates a new player and returns info
 app.post("/setPlayerName/:id/:name/", (req, res) => {
@@ -131,6 +153,10 @@ app.post("/setPlayerName/:id/:name/", (req, res) => {
   res.json(null);
 });
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
 app.post("/getPlayer/:id/", (req, res) => {
   var id = req.params.id;
   for (var i = 0; i < players.length; i++) {
@@ -143,7 +169,11 @@ app.post("/getPlayer/:id/", (req, res) => {
   res.json(null);
 });
 
-//Gets info from existing id~
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+//Gets info from existing id
 app.post("/id/:id/", (req, res) => {
   var id = req.params.id;
   for(var i = 0; i < hosts.length; i++) {
@@ -156,6 +186,19 @@ app.post("/id/:id/", (req, res) => {
   res.json(null);
 });
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+//If no id is provided return null (Fixed an issue I had)
+app.post("/id/", (req, res) => {
+  res.json(null);
+});
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
 //Gets ping from server so its still active
 app.post('/hostPing/:id/', (req, res) => {
   var id = req.params.id;
@@ -167,6 +210,10 @@ app.post('/hostPing/:id/', (req, res) => {
   }
   res.json(null);
 });
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
 
 //Gets ping from server so its still active
 app.post('/playerPing/:id/', (req, res) => {
@@ -181,6 +228,10 @@ app.post('/playerPing/:id/', (req, res) => {
   }
   res.json(null);
 });
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 
 //Helper functions

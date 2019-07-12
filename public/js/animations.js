@@ -1,3 +1,8 @@
+function translateX(el, amount, speed) {
+  el.style.transition = "transform " + speed + "s ease ";
+  el.style.transform = "translateX(" + amount + ")";
+}
+
 function scale(el, amount, speed) {
   el.style.transition = "transform " + speed + "s ease";
   el.style.transform = "scale(" + amount + ")";

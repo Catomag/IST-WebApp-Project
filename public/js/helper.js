@@ -20,14 +20,23 @@ function sleep(ms) {
 
 function GET(url) {
   var xmlHttp = new XMLHttpRequest();
-  xmlHttp.open("GET", url, true);
+  xmlHttp.open("GET", url, false);
   xmlHttp.send(null);
   return xmlHttp.response;
 }
 
 function POST(url) {
+  var error = false;
   var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onerror = () => {
+    error = true;
+    console.log("There was an error");
+  }
   xmlHttp.open("POST", url, false);
   xmlHttp.send(null);
+  if(error) {
+    return null;
+  }
+  
   return xmlHttp.response;
 }
