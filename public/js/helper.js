@@ -34,9 +34,27 @@ function POST(url) {
   }
   xmlHttp.open("POST", url, false);
   xmlHttp.send(null);
+
+  /*if(xmlHttp.response == "null") {
+    console.log("Oh no! there was an error on this post request");
+    return null;
+  }*/
+
+  return xmlHttp.response;
+}
+
+function POSTINFO(url, message) {
+  var error = false;
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onerror = () => {
+    error = true;
+    console.log("There was an error");
+  }
+  xmlHttp.open("POST", url, false);
+  xmlHttp.send(message);
   if(error) {
     return null;
   }
-  
+
   return xmlHttp.response;
 }

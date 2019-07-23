@@ -1,8 +1,11 @@
 //Dependencies
 const express = require("express");
 const path = require("path");
+const bodyParser = require('body-parser');
+
 const port = 3000;
-const idLength = 5;
+const idLength = 4;
+const playerIdLength = 20;
 var address;
 
 //Sets up the server and prints connection info
@@ -10,6 +13,7 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(express.static("public"));
+app.use(bodyParser.json());
 
 app.listen(port, '', () => {
   console.log("Port: \x1b[33m" + port + "\x1b[0m");
@@ -18,12 +22,12 @@ app.listen(port, '', () => {
 require('dns').lookup(require('os').hostname(), function (err, add, fam) {
   address = add;
   console.log('Link: ' + "\x1b[33m" + address + ":" + port + "\x1b[0m");
-})
+});
 
 
 //Host variables
 
-class hostTemplate {
+class Host {
   constructor(question) {
     this.id = "";
     this.question = question;
@@ -34,11 +38,10 @@ class hostTemplate {
   }
 }
 
-class playerTemplate {
-  constructor(gameid, playerid) {
-    this.name = "player";
-    this.gameid = gameid;
-    this.id = playerid;
+class Player {
+  constructor(id) {
+    this.id = id;
+    this.vote = null;
     this.lastupdate = 0;
   }
 }
@@ -65,7 +68,7 @@ setInterval(() => {
       hosts[i].lastupdate++;
     }
   }
-}, 500);
+}, 600);
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -111,7 +114,7 @@ app.get("/id/:id/", (req, res) => {
 
 //Creates a new game and returns info
 app.post("/create/:question/", (req, res) => {
-  var newHost = new hostTemplate(req.params.question);
+  var newHost = new Host(req.params.question);
   newHost.id = getUniqueHostId();
   hosts.push(newHost);
   console.log("Question: " + newHost.id + " created");
@@ -123,30 +126,33 @@ app.post("/create/:question/", (req, res) => {
 
 
 //Creates a new player and returns info
-app.post("/join/:game/", (req, res) => {
-  var host = getHost(req.params.game);
-  var newPlayer;
+app.post("/createPlayer/:id/", (req, res) => {
+  var id = req.params.id;
+  host = getHost(id);
 
   if(host != null) {
-    newPlayer = new playerTemplate(host.id, getUniquePlayerId());
-    players.push(newPlayer);
-    console.log("Player: " + newPlayer.id + " created for question: " + newPlayer.gameid);
+    var player = new Player(makeid(playerIdLength));
+    host.players.push(player);
+    res.json(player);
+    return;
   }
-  res.json(newPlayer);
+
+  res.json(null);
 });
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 
-//Creates a new player and returns info
-app.post("/setPlayerName/:id/:name/", (req, res) => {
-  var id = req.params.id;
-  var name = req.params.name;
-  for (var i = 0; i < players.length; i++) {
-    if(players[i].id == id) {
-      players[i].name = name;
-      res.json(players[i]);
+app.post("/updatePlayer/:gameid/", (req, res) => {
+  var gameid = req.params.gameid;
+  var player = req.body;
+  var host = getHost(gameid);
+  for (var i = 0; i < host.players.length; i++) {
+    if(host.players[i] == player) {
+      console.log("Player updated");
+      host.players[i] = player;
+      res.json(host.players[i]);
       return;
     }
   }
@@ -157,16 +163,16 @@ app.post("/setPlayerName/:id/:name/", (req, res) => {
 //----------------------------------------------------------------------------------------------------------------------
 
 
-app.post("/getPlayer/:id/", (req, res) => {
-  var id = req.params.id;
-  for (var i = 0; i < players.length; i++) {
-    if(players[i].id == id) {
-
-      res.json(players[i]);
+app.post("/removePlayer/:id/", (req, res) => {
+  var gameid = req.params.gameid;
+  var player = req.body;
+  var host = getHost(gameid);
+  for (var i = 0; i < host.players.length; i++) {
+    if(host.players[i] == player) {
+      host.splice(i, 1);
       return;
     }
   }
-  res.json(null);
 });
 
 
@@ -247,6 +253,17 @@ function makeid(length) {
    return result;
 }
 
+//Makes a simplified id
+function makesimpleid(length) {
+   var result = '';
+   var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+   var charactersLength = characters.length;
+   for (var i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
+
 function isUniqueHostId(id) {
   for (var i = 0; i < hosts.length; i++) {
     if(hosts[i] == id) {
@@ -257,30 +274,10 @@ function isUniqueHostId(id) {
   return true;
 }
 
-function isUniquePlayerId(id) {
-  for (var i = 0; i < hosts.length; i++) {
-    for (var j = 0; j < hosts[i].players.length; j++) {
-      if(hosts[i].players[j] == id) {
-        return false;
-      }
-    }
-  }
-
-  return true;
-}
-
 function getUniqueHostId() {
-  var id = makeid(idLength);
+  var id = makesimpleid(idLength);
   while(!isUniqueHostId(id)) {
-    id = makeid(idLength);
-  }
-  return id;
-}
-
-function getUniquePlayerId() {
-  var id = makeid(idLength);
-  while(!isUniquePlayerId(id)) {
-    id = makeid(idLength);
+    id = makesimpleid(idLength);
   }
   return id;
 }

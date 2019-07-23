@@ -4,17 +4,42 @@ html
     title Webzone Name
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
     link(rel="stylesheet" type="text/css" href="/css/styles.css")
-    script. 
-      var isPlayer = true;
     script(src="/js/helper.js")
+    script.
+      var isPlayer = true;
+      function validate(elem) {
+          if (!/^[a-zA-Z]*$/g.test(elem.value)) {
+              var fakearr = elem.value.split("");
+              var arr = [];
+              for(var i = 0; i < fakearr.length; i++) {
+                arr.push(fakearr[i]);
+              }
+              
+              var char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split("");
+              for(var i = 0; i < arr.length; i++) {
+                var remove = true;
+                for(var j = 0; j < char.length; j++) { 
+                  if(arr[i] == char[j]) {
+                    remove = false;
+                  }
+                }
+                if(remove) {
+                  arr.splice(i, 1);
+                }
+              }
+              elem.select(0);
+              elem.value = arr.join("");
+          }
+      }
     script(src="/js/animations.js")
     script(src="/js/serverConnect.js")
   body
+    p(id="hostId")
     center
       div
         div(id="floater")
-        p(class="bigText sideToSide") Enter PIN
+        p(class="bigText sideToSide") Enter ID
         br
         div(id="pin")
-          form(onsubmit="animateJoin(gId('floater'), gClass('bigText')[0], gId('pin'), gId('questionInput')); return false")
-            input(type="text" id="questionInput" maxlength="5" style="text-align: center")
+          form(onsubmit="join(gId('floater'), gClass('bigText')[0], gId('pin'), gId('questionInput')); return false")
+            input(type="text" id="questionInput" maxlength="4" onInput="validate(gId('questionInput'))" style="text-align: center; text-transform:uppercase")
