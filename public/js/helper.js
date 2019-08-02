@@ -1,3 +1,5 @@
+var parser = new DOMParser();
+
 function append(parent, elem) {
   return parent.append(elem);
 }
@@ -25,36 +27,45 @@ function GET(url) {
   return xmlHttp.response;
 }
 
-function POST(url) {
+function POST(url, result) {
   var error = false;
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onerror = () => {
     error = true;
     console.log("There was an error");
   }
-  xmlHttp.open("POST", url, false);
-  xmlHttp.send(null);
+  xmlHttp.open("POST", url, true);
+  xmlHttp.send();
 
-  /*if(xmlHttp.response == "null") {
-    console.log("Oh no! there was an error on this post request");
-    return null;
-  }*/
-
-  return xmlHttp.response;
+  xmlHttp.onreadystatechange = function() {
+    if (xmlHttp.readyState == XMLHttpRequest.DONE) {
+      result.value = xmlHttp.response;
+    }
+  }
 }
 
-function POSTINFO(url, message) {
+function POSTJSON(url, message, result) {
   var error = false;
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onerror = () => {
     error = true;
     console.log("There was an error");
   }
-  xmlHttp.open("POST", url, false);
-  xmlHttp.send(message);
-  if(error) {
-    return null;
-  }
+  xmlHttp.open("POST", url, true);
+  xmlHttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+  xmlHttp.send(JSON.stringify(message));
 
-  return xmlHttp.response;
+  xmlHttp.onreadystatechange = function() {
+    if (xmlHttp.readyState == XMLHttpRequest.DONE) {
+      result.value = xmlHttp.response;
+    }
+  }
+}
+
+function createElementFromHTML(htmlString) {
+  var div = document.createElement('div');
+  div.innerHTML = htmlString.trim();
+
+  // Change this to div.childNodes to support multiple top-level nodes
+  return div.firstChild;
 }

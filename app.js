@@ -33,6 +33,12 @@ class Host {
     this.question = question;
     this.playerCount = 0;
     this.lastupdate = 0;
+    this.settings = [
+      { name: "Players can write answers", enabled: true },
+      { name: "Players ", enabled: true },
+      { name: "More than one vote", enabled: true },
+    ];
+
     this.votes = [];
     this.players = [];
   }
@@ -50,15 +56,6 @@ var hosts = [];
 
 //Heartbeat to check periodically whether players are connected or not
 setInterval(() => {
-  /*for (var i = 0; i < players.length; i++) {
-    if(players[i].lastupdate > 2) {
-      players.splice(i, 1);
-    }
-    else {
-      players[i].lastupdate++;
-    }
-  }*/
-
   for (var i = 0; i < hosts.length; i++) {
     if(hosts[i].lastupdate > 2) {
       console.log("Removed host " + JSON.stringify(hosts[i]));
@@ -68,14 +65,14 @@ setInterval(() => {
       hosts[i].lastupdate++;
     }
   }
-}, 600);
+}, 4000);
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 
 //Standard response
-app.get("/", (req, res) => {
+app.get("/", function (req, res) {
   res.render("join");
 });
 
@@ -86,6 +83,14 @@ app.get("/", (req, res) => {
 //Question creator
 app.get("/create/", (req, res) => {
   res.render("question");
+});
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+app.get("/t/", (req, res) => {
+  res.render("voteDiv");
 });
 
 
@@ -119,6 +124,15 @@ app.post("/create/:question/", (req, res) => {
   hosts.push(newHost);
   console.log("Question: " + newHost.id + " created");
   res.json(newHost);
+});
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+//Creates a new game and returns info
+app.post("/getUniqueID/", (req, res) => {
+  res.json({id: getUniqueHostId()});
 });
 
 
@@ -206,10 +220,11 @@ app.post("/id/", (req, res) => {
 
 
 //Gets ping from server so its still active
-app.post('/hostPing/:id/', (req, res) => {
+app.post('/hostUpdate/:id/', (req, res) => {
   var id = req.params.id;
   var host = hosts[getHostIndex(id)];
   if(host != null) {
+    host.settings = req.body.settings;
     host.lastupdate = 0;
     res.json(host);
     return;
@@ -236,7 +251,6 @@ app.post('/playerPing/:id/', (req, res) => {
 });
 
 
-//----------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
 
 

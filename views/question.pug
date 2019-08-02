@@ -1,20 +1,31 @@
 doctype 5
 html
   head
-    title Webzone Name
+    title Webzone Name!
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
     link(rel="stylesheet" type="text/css" href="/css/styles.css")
-    script.
-      var isPlayer = false;
     script(src="/js/helper.js")
+    script.
+      var isPlayer = false;  
     script(src="/js/animations.js")
     script(src="/js/serverConnect.js")
   body
-    center
-      div
-        div(id="floater")
-        div(id="question" class="verticalCentre")
-          form(onsubmit="createHost(); return false")
-            input(type="text" id="questionInput" maxlength="40" style="padding-left: 10px")
+    div
+      div(id="floater")
+      center
+        p(class="bigText sideToSide center") Write a good question
       br
-      p(id="hostId")
+      br
+      div(id="question" class="verticalCentre")
+        form(onsubmit="questionToSettings(gId('floater'), gClass('bigText')[0], gId('question'), gId('questionInput'));/*createHost();*/ return false")
+          input(type="text" id="questionInput" contenteditable="true" maxlength="40" style="padding-left: 10px")
+    br
+    p(id="hostId")
+      
+    script.
+      /*var thing = gId("question");
+      console.log(thing.style.width);
+      var width = thing.style.getPropertyValue("width");
+      var res = 50- width;
+      thing.style.margin = "0 " + res + "%";
+      console.log(res);*/

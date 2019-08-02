@@ -23,6 +23,21 @@ function width(el, amount, speed) {
   el.style.width = amount + "%";
 }
 
+function margin(el, amount, speed) {
+  el.style.transition = "margin " + speed + "s ease";
+  el.style.margin = amount;
+}
+
+function backgroundColor(el, value, speed) {
+  el.style.transition = "background-color " + speed + "s ease";
+  el.style.backgroundColor = value;
+}
+
+function fontSize(el, value, speed) {
+  el.style.transition = "font-size " + speed + "s ease";
+  el.style.fontSize = value;
+}
+
 function deleteElement(el, delay) {
   setTimeout(() => {
     el.parentElement.removeChild(el);

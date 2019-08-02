@@ -35,11 +35,11 @@ html
     script(src="/js/serverConnect.js")
   body
     p(id="hostId")
-    center
-      div
-        div(id="floater")
-        p(class="bigText sideToSide") Enter ID
-        br
-        div(id="pin")
-          form(onsubmit="join(gId('floater'), gClass('bigText')[0], gId('pin'), gId('questionInput')); return false")
-            input(type="text" id="questionInput" maxlength="4" onInput="validate(gId('questionInput'))" style="text-align: center; text-transform:uppercase")
+    div
+      div(id="floater")
+      center
+        p(class="bigText sideToSide center") Enter ID
+      br
+      div(id="pin" class="center")
+        form(onsubmit="join(gId('floater'), gClass('bigText')[0], gId('pin'), gId('questionInput')); return false")
+          input(type="text" id="questionInput" maxlength="4" onInput="validate(gId('questionInput'))" style="text-align: center; text-transform:uppercase")
