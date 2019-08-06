@@ -1,7 +1,7 @@
 var info = null;
 var hostInfo = null;
 var time = 0;
-var hostSettingsDiv;
+var setCheckboxes = [];
 
 if(isPlayer) {
 }
@@ -14,6 +14,12 @@ else {
         var result = {
           value: null
         }
+
+        for(var i = 0; i < setCheckboxes.length; i++) {
+          //console.log("This ran");
+          info.settings[i].enabled = setCheckboxes[i].html.checked;
+        }
+
         POSTJSON(url, info, result);
         while(result.value == null) {
           await sleep(10);
@@ -140,22 +146,25 @@ async function questionToSettings(floater, text, input, inputBar) {
   input.style.maxWidth = "10000000px";
   margin(input, "0 5%", .5);
 
-  var containerElem = parser.parseFromString(ebicHtml, "text/html");
+  var containerElem = createElementFromHTML('div', ebicHtml);
   var container = document.body.insertAdjacentElement('beforeend', containerElem);
-  console.log(container);
-
   while(info == null) {
     await sleep(10);
   }
 
   for (var i = 0; i < info.settings.length; i++) {
-    var htmlThing = parser.parseFromString('<input type="checkBox" style="float: left; margin-top: 5px"/> <p type="checkBox" style="float: left; margin-top: 7.5px">' + info.settings[i].name +'</p>', "text/html");
-    hostSettingsDiv = container.insertAdjacentElement('beforeend', htmlThing);
-    console.log("This ran");
-    elem.addEventListener("onclick", () => {
-      console.log("This ran");
-      info.settings[i].enabled = hostSettingsDiv.value;
-    });
+    var htmlThing = createElementFromHTML('input', '<input type="checkBox" style="float: left; margin-top: 5px"/>');
+    var paar = createElementFromHTML('p', '<p type="checkBox" style="float: left; margin-top: 7.5px">' + info.settings[i].name +'</p>');
+    var checkbox = {
+      html: null,
+      index: i
+    }
+    checkbox.html = container.insertAdjacentElement('beforeend', htmlThing);
+    var paaar = container.insertAdjacentElement('beforeend', paar);
+    container.insertAdjacentHTML('beforeend', '<br>');
+    container.insertAdjacentHTML('beforeend', '<br>');
+    checkbox.html.checked = info.settings[i].enabled;
+    setCheckboxes.push(checkbox);
   }
 }
 

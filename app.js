@@ -35,8 +35,8 @@ class Host {
     this.lastupdate = 0;
     this.settings = [
       { name: "Players can write answers", enabled: true },
+      { name: "Players can vote more than once", enabled: true },
       { name: "Players ", enabled: true },
-      { name: "More than one vote", enabled: true },
     ];
 
     this.votes = [];

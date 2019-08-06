@@ -62,8 +62,8 @@ function POSTJSON(url, message, result) {
   }
 }
 
-function createElementFromHTML(htmlString) {
-  var div = document.createElement('div');
+function createElementFromHTML(elemType, htmlString) {
+  var div = document.createElement(elemType);
   div.innerHTML = htmlString.trim();
 
   // Change this to div.childNodes to support multiple top-level nodes
