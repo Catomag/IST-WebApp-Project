@@ -154,13 +154,14 @@ async function questionToSettings(floater, text, input, inputBar) {
 
   for (var i = 0; i < info.settings.length; i++) {
     var htmlThing = createElementFromHTML('input', '<input type="checkBox" style="float: left; margin-top: 5px"/>');
-    var paar = createElementFromHTML('p', '<p type="checkBox" style="float: left; margin-top: 7.5px">' + info.settings[i].name +'</p>');
+    var paar = createElementFromHTML('p', '<p type="checkBox" style="float: left; margin-top: 7.5px; font-size:16pt">' + info.settings[i].name +'</p>');
     var checkbox = {
       html: null,
       index: i
     }
     checkbox.html = container.insertAdjacentElement('beforeend', htmlThing);
     var paaar = container.insertAdjacentElement('beforeend', paar);
+    container.insertAdjacentHTML('beforeend', '<br>');
     container.insertAdjacentHTML('beforeend', '<br>');
     container.insertAdjacentHTML('beforeend', '<br>');
     checkbox.html.checked = info.settings[i].enabled;

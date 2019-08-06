@@ -72,7 +72,7 @@ setInterval(() => {
 
 
 //Standard response
-app.get("/", function (req, res) {
+app.get("/", (req, res) => {
   res.render("join");
 });
 
@@ -89,8 +89,9 @@ app.get("/create/", (req, res) => {
 //----------------------------------------------------------------------------------------------------------------------
 
 
-app.get("/t/", (req, res) => {
-  res.render("voteDiv");
+app.get("/test/", (req, res) => {
+  console.log("Did thing");
+  res.render("test", {});
 });
 
 

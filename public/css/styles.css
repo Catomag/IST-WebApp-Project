@@ -67,8 +67,8 @@ p {
 }
 
 #settings {
-  width: 50vw;
-  height: 30vh;
+  width: 70vw;
+  height: 40vh;
   background-color: rgb(67, 56, 84);
   padding: .1%;
 }
@@ -90,6 +90,12 @@ p {
 
 
 /* Class */
+.button {
+  width: 200px;
+  height: 100px;
+  background-color: green;
+}
+
 .voteDiv {
   width: 10vw;
   height: 10vh;
