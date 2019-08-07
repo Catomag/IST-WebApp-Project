@@ -1,7 +1,8 @@
 //Dependencies
-const express = require("express");
-const path = require("path");
+const express = require('express');
+const path = require('path');
 const bodyParser = require('body-parser');
+const pug = require('pug');
 
 const port = 3000;
 const idLength = 4;
@@ -90,8 +91,7 @@ app.get("/create/", (req, res) => {
 
 
 app.get("/test/", (req, res) => {
-  console.log("Did thing");
-  res.render("test", {});
+  res.render("test.pug");
 });
 
 
