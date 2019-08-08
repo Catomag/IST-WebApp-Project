@@ -10,14 +10,35 @@ else {
   if(!isPlayer) {
     var ping = setInterval(async () => {
       if(info != null) {
-        var url = "http://" + window.location.host + "/hostUpdate/" + info.id;
+        if(info.id != "") {
+          var url = "http://" + window.location.host + "/hostUpdate/" + info.id;
+          var result = {
+            value: null
+          }
+
+          if(setCheckboxes[0].html != null) {
+            for(var i = 0; i < setCheckboxes.length; i++) {
+              info.settings[i].enabled = setCheckboxes[i].html.checked;
+            }
+          }
+
+          POSTJSON(url, info, result);
+          while(result.value == null) {
+            await sleep(10);
+          }
+          info = JSON.parse(result.value);
+          console.log("Pinged server!");
+          time++;
+        }
+      }
+    }, 200);
+  }
+  else {
+    var ping = setInterval(async () => {
+      if(info != null) {
+        var url = "http://" + window.location.host + "/playerUpdate/" + info.id;
         var result = {
           value: null
-        }
-
-        for(var i = 0; i < setCheckboxes.length; i++) {
-          //console.log("This ran");
-          info.settings[i].enabled = setCheckboxes[i].html.checked;
         }
 
         POSTJSON(url, info, result);
@@ -25,6 +46,18 @@ else {
           await sleep(10);
         }
         info = JSON.parse(result.value);
+
+        url = "http://" + window.location.host + "/id/" + info.id;
+        result = {
+          value: null
+        }
+
+        POST(url, result);
+        while(result.value == null) {
+          await sleep(10);
+        }
+        hostInfo = JSON.parse(result.value);
+
         console.log("Pinged server!");
         time++;
       }
@@ -47,7 +80,7 @@ window.onbeforeunload = () => {
 async function createHost() {
   var questionInput = document.getElementById("questionInput");
 
-  var url = "http://" + window.location.host + "/create/" + questionInput.value;
+  var url = "http://" + window.location.host + "/getTemplate/";
   var result = {
     value: null
   };
@@ -55,10 +88,10 @@ async function createHost() {
   while(result.value == null) {
     await sleep(1);
   }
-  await sleep(10);
   var data = JSON.parse(result.value);
   info = data;
-  console.log("Host id is: " + data.id);
+  info.question = questionInput.value;
+  console.log(info);
 }
 
 
@@ -69,7 +102,6 @@ async function createPlayer(id) {
   if(id == null || id == "") {
     return null;
   }
-  id = id.toUpperCase();
   var url = "http://" + window.location.host + "/id/" + id;
   var result = {
     value: null
@@ -84,6 +116,10 @@ async function createPlayer(id) {
     return;
   }
 
+  result = {
+    value: null
+  };
+
   url = "http://" + window.location.host + "/createPlayer/" + id;
   POST(url, result);
   while(result.value == null) {
@@ -91,7 +127,7 @@ async function createPlayer(id) {
   }
 
   info = JSON.parse(result.value);
-  console.log(info);
+  console.log("Done with this");
   document.getElementById("hostId").innerHTML = "Id is: " + hostInfo.id;
 }
 
@@ -100,7 +136,9 @@ async function createPlayer(id) {
 
 
 async function join(floater, text, input, inputBar) {
+  questionInput.value = questionInput.value.toUpperCase();
   createPlayer(questionInput.value);
+  console.log("did this");
   if(info != null) {
     console.log("Succesfully connected to host");
     height(floater, 0, .4);
@@ -136,17 +174,20 @@ async function questionToSettings(floater, text, input, inputBar) {
 
   var ebicHtml = '<div id="settings"></div>';
   var checkbox = '<input type="checkBox" style="float: left; margin-top: 5px"/> <p type="checkBox" style="float: left; margin-top: 7.5px">sup peeps</p>';
+  var nextButtonHtml = '<div class="button" style="float:right;" onclick="startHost()"><center><p class="unselectable">GO!</p></center></div>'
+
 
   height(floater, 0, .75);
   text.innerHTML = "Adjust your game!";
   fontSize(text, "26pt", .5);
   await sleep(350);
-  inputBar.setAttribute("readonly", "");
+  //inputBar.setAttribute("readonly", "");
   inputBar.style.textTransform = "none";
   input.style.maxWidth = "10000000px";
   margin(input, "0 5%", .5);
 
   var containerElem = createElementFromHTML('div', ebicHtml);
+  var nextButton = createElementFromHTML('div', nextButtonHtml);
   var container = document.body.insertAdjacentElement('beforeend', containerElem);
   while(info == null) {
     await sleep(10);
@@ -167,10 +208,31 @@ async function questionToSettings(floater, text, input, inputBar) {
     checkbox.html.checked = info.settings[i].enabled;
     setCheckboxes.push(checkbox);
   }
+  /*container.insertAdjacentHTML('beforeend', '<br>');*/
+  container.insertAdjacentElement('beforeend', nextButton);
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
+
+
+async function startHost() {
+  var url = "http://" + window.location.host + "/create/";
+  result = {
+    value: null,
+  }
+  POSTJSON(url, info, result);
+  while(result.value == null) {
+    await sleep(10);
+  }
+  info = JSON.parse(result.value);
+  console.log(info);
+  console.log("Question id is: " + info.id);
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
 
 async function create(floater, text, input, inputBar) {
 

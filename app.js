@@ -29,9 +29,9 @@ require('dns').lookup(require('os').hostname(), function (err, add, fam) {
 //Host variables
 
 class Host {
-  constructor(question) {
+  constructor() {
     this.id = "";
-    this.question = question;
+    this.question = "";
     this.playerCount = 0;
     this.lastupdate = 0;
     this.settings = [
@@ -74,6 +74,15 @@ setInterval(() => {
 
 //Standard response
 app.get("/", (req, res) => {
+  res.render("index");
+});
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+//Join a game
+app.get("/join/", (req, res) => {
   res.render("join");
 });
 
@@ -119,11 +128,8 @@ app.get("/id/:id/", (req, res) => {
 
 
 //Creates a new game and returns info
-app.post("/create/:question/", (req, res) => {
-  var newHost = new Host(req.params.question);
-  newHost.id = getUniqueHostId();
-  hosts.push(newHost);
-  console.log("Question: " + newHost.id + " created");
+app.post("/getTemplate/", (req, res) => {
+  var newHost = new Host();
   res.json(newHost);
 });
 
@@ -132,8 +138,14 @@ app.post("/create/:question/", (req, res) => {
 
 
 //Creates a new game and returns info
-app.post("/getUniqueID/", (req, res) => {
-  res.json({id: getUniqueHostId()});
+app.post("/create/", (req, res) => {
+  var newHost = new Host(req.params.question);
+  newHost.id = getUniqueHostId();
+  newHost.question = req.body.question;
+  newHost.settings = req.body.settings;
+  hosts.push(newHost);
+  console.log("Question: " + newHost.id + " created");
+  res.json(newHost);
 });
 
 
@@ -159,7 +171,7 @@ app.post("/createPlayer/:id/", (req, res) => {
 //----------------------------------------------------------------------------------------------------------------------
 
 
-app.post("/updatePlayer/:gameid/", (req, res) => {
+app.post("/playerUpdate/:gameid/", (req, res) => {
   var gameid = req.params.gameid;
   var player = req.body;
   var host = getHost(gameid);

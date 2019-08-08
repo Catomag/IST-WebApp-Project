@@ -67,10 +67,13 @@ p {
 }
 
 #settings {
-  width: 70vw;
+  position: relative;
+  left: 4vw;
+  width: 50vw;
   height: 40vh;
+  min-width: 500px;
   background-color: rgb(67, 56, 84);
-  padding: .1%;
+  padding: 1%;
 }
 
 #plus:hover {
@@ -93,9 +96,13 @@ p {
 .button {
   width: 10vw;
   height: 5vh;
+  min-width: 150px;
+  min-height: 50px;
   background-color: rgb(84, 67, 111);
   font-size: 30pt;
   padding: 1vw;
+  position: relative;
+  bottom: 0%;
 }
 
 .button:hover {
