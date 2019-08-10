@@ -35,9 +35,7 @@ class Host {
     this.playerCount = 0;
     this.lastupdate = 0;
     this.settings = [
-      { name: "Players can write answers", enabled: true },
       { name: "Players can vote more than once", enabled: true },
-      { name: "Players ", enabled: true },
     ];
 
     this.votes = [];
@@ -58,7 +56,7 @@ var hosts = [];
 //Heartbeat to check periodically whether players are connected or not
 setInterval(() => {
   for (var i = 0; i < hosts.length; i++) {
-    if(hosts[i].lastupdate > 2) {
+    if(hosts[i].lastupdate > 5) {
       console.log("Removed host " + JSON.stringify(hosts[i]));
       hosts.splice(i, 1);
     }
@@ -111,15 +109,12 @@ app.get("/test/", (req, res) => {
 app.get("/id/:id/", (req, res) => {
   var id = req.params.id;
   res.type('text/plain');
-  console.log("Recieved request for id: " + id);
   for(var i = 0; i < hosts.length; i++) {
     if(hosts[i].id == id) {
-      console.log("Id found");
       res.json(hosts[i]);
       return;
     }
   }
-  console.log("Id not found");
   res.json(null);
 });
 
@@ -238,27 +233,19 @@ app.post('/hostUpdate/:id/', (req, res) => {
   var host = hosts[getHostIndex(id)];
   if(host != null) {
     host.settings = req.body.settings;
+    
+    if(host.votes.length < 1) {
+      host.votes = req.body.votes;
+    }
+    for(var i = 0; i < req.body.votes.length; i++) {
+      if(i > host.votes.length-1) {
+        host.votes.push(req.body.votes[i-1]);
+      }
+    }
+
     host.lastupdate = 0;
     res.json(host);
     return;
-  }
-  res.json(null);
-});
-
-
-//----------------------------------------------------------------------------------------------------------------------
-
-
-//Gets ping from server so its still active
-app.post('/playerPing/:id/', (req, res) => {
-  var id = req.params.id;
-  for(var i = 0; i < hosts.length; i++) {
-    if(players[i].id == id) {
-      players[i].lastupdate = 0;
-      console.log("Player: " + id + " just pinged!");
-      res.json(players[i]);
-      return;
-    }
   }
   res.json(null);
 });

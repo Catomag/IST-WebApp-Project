@@ -28,9 +28,14 @@ function margin(el, amount, speed) {
   el.style.margin = amount;
 }
 
-function backgroundColor(el, value, speed) {
+function backgroundColorChange(el, value, speed) {
   el.style.transition = "background-color " + speed + "s ease";
   el.style.backgroundColor = value;
+}
+
+function colorChange(el, value, speed) {
+  el.style.transition = "background-color " + speed + "s ease";
+  el.style.color = value;
 }
 
 function fontSize(el, value, speed) {

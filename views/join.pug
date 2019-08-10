@@ -7,6 +7,9 @@ html
     script(src="/js/helper.js")
     script.
       var isPlayer = true;
+      var clearNumb = setInterval(() => {
+        validate(gId('questionInput'));
+      }, 10);
       function validate(elem) {
           if (!/^[a-zA-Z]*$/g.test(elem.value)) {
               var fakearr = elem.value.split("");
@@ -38,8 +41,8 @@ html
     div
       div(id="floater")
       center
-        p(class="bigText sideToSide center") Enter ID
+        p(class="bigText sideToSide center unselectable") Enter ID
       br
       div(id="pin" class="center")
         form(onsubmit="join(gId('floater'), gClass('bigText')[0], gId('pin'), gId('questionInput')); return false")
-          input(type="text" id="questionInput" maxlength="4" onInput="validate(gId('questionInput'))" style="text-align: center; text-transform:uppercase")
+          input(type="text" id="questionInput" maxlength="4" style="text-align: center; text-transform:uppercase")

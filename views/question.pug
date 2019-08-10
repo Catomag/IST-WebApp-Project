@@ -12,20 +12,22 @@ html
   body
     div
       div(id="floater")
-      center
-        p(class="bigText sideToSide center unselectable") Write a good question
+      div(style="text-align: center;" class="bigText sideToSide unselectable") Write a question
       br
       br
       div(id="question" class="verticalCentre")
-        form(onsubmit="questionToSettings(gId('floater'), gClass('bigText')[0], gId('question'), gId('questionInput'));/*createHost();*/ return false")
+        form(onsubmit="if(info==null){questionToSettings(gId('floater'), gClass('bigText')[0], gId('question'), gId('questionInput'));}else{startHost();}return false")
           input(type="text" id="questionInput" contenteditable="true" maxlength="40" style="padding-left: 10px")
     br
     p(id="hostId")
-      
     script.
-      /*var thing = gId("question");
-      console.log(thing.style.width);
-      var width = thing.style.getPropertyValue("width");
-      var res = 50- width;
-      thing.style.margin = "0 " + res + "%";
-      console.log(res);*/
+      //Code for centering the input bar thingo
+      var inputStyle = window.getComputedStyle(gId('questionInput'));
+      var width = Number(inputStyle.getPropertyValue('width').split('p')[0]);
+      gId('questionInput').style.margin = "0 calc(50vw - " + width/2 + "px)";
+      
+      var centerInput = setInterval(() => {
+        var inputStyle = window.getComputedStyle(gId('questionInput'));
+        var width = Number(inputStyle.getPropertyValue('width').split('p')[0]);
+        gId('questionInput').style.margin = "0 calc(50vw - " + width/2 + "px)";
+      }, 200);

@@ -2,6 +2,23 @@ var info = null;
 var hostInfo = null;
 var time = 0;
 var setCheckboxes = [];
+var voteElements = [];
+var doneResponses = false;
+
+var containerElem;
+var nextButton;
+var addButton;
+var voteContainer;
+var voteHolder;
+var container;
+
+class Vote {
+  constructor() {
+    this.name;
+    this.votes;
+    this.color;
+  }
+}
 
 if(isPlayer) {
 }
@@ -14,12 +31,6 @@ else {
           var url = "http://" + window.location.host + "/hostUpdate/" + info.id;
           var result = {
             value: null
-          }
-
-          if(setCheckboxes[0].html != null) {
-            for(var i = 0; i < setCheckboxes.length; i++) {
-              info.settings[i].enabled = setCheckboxes[i].html.checked;
-            }
           }
 
           POSTJSON(url, info, result);
@@ -102,6 +113,8 @@ async function createPlayer(id) {
   if(id == null || id == "") {
     return null;
   }
+  id = id.toUpperCase();
+
   var url = "http://" + window.location.host + "/id/" + id;
   var result = {
     value: null
@@ -127,7 +140,6 @@ async function createPlayer(id) {
   }
 
   info = JSON.parse(result.value);
-  console.log("Done with this");
   document.getElementById("hostId").innerHTML = "Id is: " + hostInfo.id;
 }
 
@@ -136,9 +148,9 @@ async function createPlayer(id) {
 
 
 async function join(floater, text, input, inputBar) {
+  clearInterval(clearNumb);
   questionInput.value = questionInput.value.toUpperCase();
-  createPlayer(questionInput.value);
-  console.log("did this");
+  await createPlayer(questionInput.value);
   if(info != null) {
     console.log("Succesfully connected to host");
     height(floater, 0, .4);
@@ -151,6 +163,10 @@ async function join(floater, text, input, inputBar) {
     input.style.maxWidth = "10000000px";
     width(input, 80, .5);
     inputBar.value = hostInfo.question + '?';
+
+    for(var i = 0; i < hostInfo.votes.length; i++) {
+
+    }
   }
 
   else {
@@ -169,13 +185,17 @@ async function join(floater, text, input, inputBar) {
 
 
 async function questionToSettings(floater, text, input, inputBar) {
+  clearInterval(centerInput);
   createHost();
   console.log("Succesfully connected to server");
 
   var ebicHtml = '<div id="settings"></div>';
   var checkbox = '<input type="checkBox" style="float: left; margin-top: 5px"/> <p type="checkBox" style="float: left; margin-top: 7.5px">sup peeps</p>';
-  var nextButtonHtml = '<div class="button" style="float:right;" onclick="startHost()"><center><p class="unselectable">GO!</p></center></div>'
-
+  var voteContainerHtml = '<div id="votesContainer"></div>';
+  var voteHolderHtml = '<div style="background-color: rgb(63, 47, 71); height: 100%; width: 90%; overflow-y: auto"></div>';
+  var nextButtonHtml = '<div class="button" style="float: right" onclick="startHost()"><center><p class="unselectable">GO!</p></center></div>';
+  var addButtonHtml = '<div id="plus" class="verticalCentre" style="float: right" onclick="addResponse()"><center><p class="unselectable">+</p></center></div>';
+  var removeButtonHtml = '<div id="plus" class="verticalCentre" style="float: right" onclick="removeResponse()"><center><p class="unselectable">-</p></center></div>';
 
   height(floater, 0, .75);
   text.innerHTML = "Adjust your game!";
@@ -186,29 +206,50 @@ async function questionToSettings(floater, text, input, inputBar) {
   input.style.maxWidth = "10000000px";
   margin(input, "0 5%", .5);
 
-  var containerElem = createElementFromHTML('div', ebicHtml);
-  var nextButton = createElementFromHTML('div', nextButtonHtml);
-  var container = document.body.insertAdjacentElement('beforeend', containerElem);
-  while(info == null) {
+  containerElem = createElementFromHTML('div', ebicHtml);
+  nextButton = createElementFromHTML('div', nextButtonHtml);
+  addButton = createElementFromHTML('div', addButtonHtml);
+  var removeButton = createElementFromHTML('div', removeButtonHtml);
+  var thing = createElementFromHTML('div', '<div style="width: 10%; backgroundColor: green"></div>');
+  voteContainer = createElementFromHTML('div', voteContainerHtml);
+  voteHolder = createElementFromHTML('div', voteHolderHtml);
+  container = document.body.insertAdjacentElement('beforeend', containerElem);
+
+  /*while(info == null) {
     await sleep(10);
-  }
+  }*/
 
   for (var i = 0; i < info.settings.length; i++) {
+    var containerThing = createElementFromHTML('div', '<div></div>');
     var htmlThing = createElementFromHTML('input', '<input type="checkBox" style="float: left; margin-top: 5px"/>');
     var paar = createElementFromHTML('p', '<p type="checkBox" style="float: left; margin-top: 7.5px; font-size:16pt">' + info.settings[i].name +'</p>');
     var checkbox = {
       html: null,
       index: i
     }
-    checkbox.html = container.insertAdjacentElement('beforeend', htmlThing);
-    var paaar = container.insertAdjacentElement('beforeend', paar);
+
+    containerThing = container.insertAdjacentElement('beforeend', containerThing);
+    checkbox.html = containerThing.insertAdjacentElement('beforeend', htmlThing);
+    var paaar = containerThing.insertAdjacentElement('beforeend', paar);
     container.insertAdjacentHTML('beforeend', '<br>');
     container.insertAdjacentHTML('beforeend', '<br>');
     container.insertAdjacentHTML('beforeend', '<br>');
     checkbox.html.checked = info.settings[i].enabled;
     setCheckboxes.push(checkbox);
   }
-  /*container.insertAdjacentHTML('beforeend', '<br>');*/
+
+  container.insertAdjacentElement('beforeend', voteContainer);
+  container.insertAdjacentHTML('beforeend', '<br>');
+
+  voteContainer.insertAdjacentElement('beforeend', voteHolder);
+  voteContainer.insertAdjacentElement('beforeend', thing);
+  thing.insertAdjacentElement('beforeend', addButton);
+  thing.insertAdjacentElement('beforeend', removeButton);
+
+  voteHolder.insertAdjacentHTML('beforeend', '<br>');
+
+  container.insertAdjacentHTML('beforeend', '<br>');
+  container.insertAdjacentHTML('beforeend', '<br>');
   container.insertAdjacentElement('beforeend', nextButton);
 }
 
@@ -217,6 +258,21 @@ async function questionToSettings(floater, text, input, inputBar) {
 
 
 async function startHost() {
+  /*if(info.votes.length < 2) {
+    var title = gClass('bigText')[0];
+    colorChange(title, 'rgb(175, 7, 7)', 1);
+    await sleep(75);
+    colorChange(title, 'rgb(255, 255, 255)', 1);
+    confirm("You need at least 2 responses to start a game");
+    return;
+  }*/
+
+  if(setCheckboxes[0].html != null) {
+    for(var i = 0; i < setCheckboxes.length; i++) {
+      info.settings[i].enabled = setCheckboxes[i].html.checked;
+    }
+  }
+
   var url = "http://" + window.location.host + "/create/";
   result = {
     value: null,
@@ -228,6 +284,30 @@ async function startHost() {
   info = JSON.parse(result.value);
   console.log(info);
   console.log("Question id is: " + info.id);
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+async function addResponse() {
+  var vote = new Vote();
+  vote.name = name;
+  vote.votes = 0;
+  info.votes.push(vote);
+
+  var voteHtml = '<input class="voteInput" type="text" style="color: white;" onsubmit="return false"/>';
+  var voteElem = createElementFromHTML('input', voteHtml);
+
+  voteElem.style.backgroundColor = 'rgb(' + (Math.random()*200+55) + ',' + (Math.random()*200+55) + ',' + (Math.random()*200+55) + ')';
+  voteHolder.insertAdjacentElement('beforeend', voteElem);
+
+  voteElements.push(voteElem);
+  /*var url = "http://" + window.location.host + "/hostUpdate/" + info.id;
+  var result = {
+    value: null
+  };
+  POSTJSON(url, info, result);*/
 }
 
 
