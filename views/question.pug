@@ -12,7 +12,7 @@ html
   body
     div
       div(id="floater")
-      div(style="text-align: center;" class="bigText sideToSide unselectable") Write a question
+      div(style="text-align: center; width: 20%; margin: 0 auto" class="bigText sideToSide unselectable") Write a question
       br
       br
       div(id="question" class="verticalCentre")
@@ -29,5 +29,5 @@ html
       var centerInput = setInterval(() => {
         var inputStyle = window.getComputedStyle(gId('questionInput'));
         var width = Number(inputStyle.getPropertyValue('width').split('p')[0]);
-        gId('questionInput').style.margin = "0 calc(50vw - " + width/2 + "px)";
+        gId('questionInput').style.margin = "0 calc(50vw - " + gId('questionInput').style.width + "px)";
       }, 200);

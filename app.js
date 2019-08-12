@@ -13,16 +13,16 @@ var address;
 const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-app.use(express.static("public"));
+app.use(express.static('public'));
 app.use(bodyParser.json());
 
 app.listen(port, '', () => {
-  console.log("Port: \x1b[33m" + port + "\x1b[0m");
+  console.log('Port: \x1b[33m' + port + '\x1b[0m');
 });
 
 require('dns').lookup(require('os').hostname(), function (err, add, fam) {
   address = add;
-  console.log('Link: ' + "\x1b[33m" + address + ":" + port + "\x1b[0m");
+  console.log('Link: ' + '\x1b[33m' + address + ':' + port + '\x1b[0m');
 });
 
 
@@ -30,12 +30,12 @@ require('dns').lookup(require('os').hostname(), function (err, add, fam) {
 
 class Host {
   constructor() {
-    this.id = "";
-    this.question = "";
+    this.id = '';
+    this.question = '';
     this.playerCount = 0;
     this.lastupdate = 0;
     this.settings = [
-      { name: "Players can vote more than once", enabled: true },
+      { name: 'Players can vote more than once', enabled: true },
     ];
 
     this.votes = [];
@@ -57,7 +57,7 @@ var hosts = [];
 setInterval(() => {
   for (var i = 0; i < hosts.length; i++) {
     if(hosts[i].lastupdate > 5) {
-      console.log("Removed host " + JSON.stringify(hosts[i]));
+      console.log('Removed host ' + JSON.stringify(hosts[i]));
       hosts.splice(i, 1);
     }
     else {
@@ -71,8 +71,8 @@ setInterval(() => {
 
 
 //Standard response
-app.get("/", (req, res) => {
-  res.render("index");
+app.get('/', (req, res) => {
+  res.render('index');
 });
 
 
@@ -80,8 +80,8 @@ app.get("/", (req, res) => {
 
 
 //Join a game
-app.get("/join/", (req, res) => {
-  res.render("join");
+app.get('/join/', (req, res) => {
+  res.render('join');
 });
 
 
@@ -89,16 +89,16 @@ app.get("/join/", (req, res) => {
 
 
 //Question creator
-app.get("/create/", (req, res) => {
-  res.render("question");
+app.get('/create/', (req, res) => {
+  res.render('question');
 });
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 
-app.get("/test/", (req, res) => {
-  res.render("test.pug");
+app.get('/test/', (req, res) => {
+  res.render('test.pug');
 });
 
 
@@ -106,7 +106,7 @@ app.get("/test/", (req, res) => {
 
 
 //Redirect to game
-app.get("/id/:id/", (req, res) => {
+app.get('/id/:id/', (req, res) => {
   var id = req.params.id;
   res.type('text/plain');
   for(var i = 0; i < hosts.length; i++) {
@@ -123,7 +123,7 @@ app.get("/id/:id/", (req, res) => {
 
 
 //Creates a new game and returns info
-app.post("/getTemplate/", (req, res) => {
+app.post('/getTemplate/', (req, res) => {
   var newHost = new Host();
   res.json(newHost);
 });
@@ -133,13 +133,14 @@ app.post("/getTemplate/", (req, res) => {
 
 
 //Creates a new game and returns info
-app.post("/create/", (req, res) => {
+app.post('/create/', (req, res) => {
   var newHost = new Host(req.params.question);
   newHost.id = getUniqueHostId();
   newHost.question = req.body.question;
   newHost.settings = req.body.settings;
+  newHost.votes = req.body.votes;
   hosts.push(newHost);
-  console.log("Question: " + newHost.id + " created");
+  console.log('Question: ' + newHost.id + ' created');
   res.json(newHost);
 });
 
@@ -148,9 +149,9 @@ app.post("/create/", (req, res) => {
 
 
 //Creates a new player and returns info
-app.post("/createPlayer/:id/", (req, res) => {
+app.post('/createPlayer/:id/', (req, res) => {
   var id = req.params.id;
-  host = getHost(id);
+  var host = hosts[getHostIndex(id)];
 
   if(host != null) {
     var player = new Player(makeid(playerIdLength));
@@ -158,7 +159,7 @@ app.post("/createPlayer/:id/", (req, res) => {
     res.json(player);
     return;
   }
-
+  console.log('Host was null');
   res.json(null);
 });
 
@@ -166,18 +167,22 @@ app.post("/createPlayer/:id/", (req, res) => {
 //----------------------------------------------------------------------------------------------------------------------
 
 
-app.post("/playerUpdate/:gameid/", (req, res) => {
+app.post('/playerUpdate/:gameid/', (req, res) => {
   var gameid = req.params.gameid;
   var player = req.body;
-  var host = getHost(gameid);
-  for (var i = 0; i < host.players.length; i++) {
-    if(host.players[i] == player) {
-      console.log("Player updated");
-      host.players[i] = player;
-      res.json(host.players[i]);
-      return;
+  var host = hosts[getHostIndex(gameid)];
+
+  if(host != null) {
+    for (var i = 0; i < host.players.length; i++) {
+      if(host.players[i].id == player.id) {
+        console.log('Player updated');
+        host.players[i] = player;
+        res.json(host.players[i]);
+        return;
+      }
     }
   }
+  console.log('Host was null');
   res.json(null);
 });
 
@@ -185,7 +190,7 @@ app.post("/playerUpdate/:gameid/", (req, res) => {
 //----------------------------------------------------------------------------------------------------------------------
 
 
-app.post("/removePlayer/:id/", (req, res) => {
+app.post('/removePlayer/:id/', (req, res) => {
   var gameid = req.params.gameid;
   var player = req.body;
   var host = getHost(gameid);
@@ -202,7 +207,7 @@ app.post("/removePlayer/:id/", (req, res) => {
 
 
 //Gets info from existing id
-app.post("/id/:id/", (req, res) => {
+app.post('/id/:id/', (req, res) => {
   var id = req.params.id;
   for(var i = 0; i < hosts.length; i++) {
     if(hosts[i].id == id) {
@@ -219,7 +224,7 @@ app.post("/id/:id/", (req, res) => {
 
 
 //If no id is provided return null (Fixed an issue I had)
-app.post("/id/", (req, res) => {
+app.post('/id/', (req, res) => {
   res.json(null);
 });
 
@@ -232,17 +237,6 @@ app.post('/hostUpdate/:id/', (req, res) => {
   var id = req.params.id;
   var host = hosts[getHostIndex(id)];
   if(host != null) {
-    host.settings = req.body.settings;
-    
-    if(host.votes.length < 1) {
-      host.votes = req.body.votes;
-    }
-    for(var i = 0; i < req.body.votes.length; i++) {
-      if(i > host.votes.length-1) {
-        host.votes.push(req.body.votes[i-1]);
-      }
-    }
-
     host.lastupdate = 0;
     res.json(host);
     return;

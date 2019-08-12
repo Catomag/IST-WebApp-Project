@@ -21,33 +21,41 @@ class Vote {
 }
 
 if(isPlayer) {
+  var ping = setInterval(async () => {
+    if(info != null) {
+      var url = "http://" + window.location.host + "/playerUpdate/" + info.id;
+      var result = {
+        value: null
+      }
+
+      POSTJSON(url, info, result);
+      while(result.value == null) {
+        await sleep(10);
+      }
+      info = JSON.parse(result.value);
+
+      url = "http://" + window.location.host + "/id/" + info.id;
+      result = {
+        value: null
+      }
+
+      POST(url, result);
+      while(result.value == null) {
+        await sleep(10);
+      }
+      hostInfo = JSON.parse(result.value);
+
+      console.log("Pinged server!");
+      time++;
+    }
+  }, 100);
 }
 else {
   //Upadate host
-  if(!isPlayer) {
-    var ping = setInterval(async () => {
-      if(info != null) {
-        if(info.id != "") {
-          var url = "http://" + window.location.host + "/hostUpdate/" + info.id;
-          var result = {
-            value: null
-          }
-
-          POSTJSON(url, info, result);
-          while(result.value == null) {
-            await sleep(10);
-          }
-          info = JSON.parse(result.value);
-          console.log("Pinged server!");
-          time++;
-        }
-      }
-    }, 200);
-  }
-  else {
-    var ping = setInterval(async () => {
-      if(info != null) {
-        var url = "http://" + window.location.host + "/playerUpdate/" + info.id;
+  var ping = setInterval(async () => {
+    if(info != null) {
+      if(info.id != "") {
+        var url = "http://" + window.location.host + "/hostUpdate/" + info.id;
         var result = {
           value: null
         }
@@ -57,23 +65,11 @@ else {
           await sleep(10);
         }
         info = JSON.parse(result.value);
-
-        url = "http://" + window.location.host + "/id/" + info.id;
-        result = {
-          value: null
-        }
-
-        POST(url, result);
-        while(result.value == null) {
-          await sleep(10);
-        }
-        hostInfo = JSON.parse(result.value);
-
         console.log("Pinged server!");
         time++;
       }
-    }, 200);
-  }
+    }
+  }, 100);
 }
 
 
@@ -165,7 +161,10 @@ async function join(floater, text, input, inputBar) {
     inputBar.value = hostInfo.question + '?';
 
     for(var i = 0; i < hostInfo.votes.length; i++) {
-
+      var voteHtml = '<div class="bigButton" style="" onclick=""><p class="unselectable" style="margin: auto auto; text-align: center"> ' + hostInfo.votes[i].name + ' ' + '0%' + '</p></div>';
+      var voteElem = createElementFromHTML('div', voteHtml);
+      voteElem.style.backgroundColor = '' + hostInfo.votes[i].color;
+      gId('main').insertAdjacentElement('beforeend', voteElem);
     }
   }
 
@@ -185,7 +184,7 @@ async function join(floater, text, input, inputBar) {
 
 
 async function questionToSettings(floater, text, input, inputBar) {
-  clearInterval(centerInput);
+  //clearInterval(centerInput);
   createHost();
   console.log("Succesfully connected to server");
 
@@ -210,7 +209,7 @@ async function questionToSettings(floater, text, input, inputBar) {
   nextButton = createElementFromHTML('div', nextButtonHtml);
   addButton = createElementFromHTML('div', addButtonHtml);
   var removeButton = createElementFromHTML('div', removeButtonHtml);
-  var thing = createElementFromHTML('div', '<div style="width: 10%; backgroundColor: green"></div>');
+  var thing = createElementFromHTML('div', '<div style="width: 10%; backgroundColor: green; min-width: 82px; min-height: 65px;"></div>');
   voteContainer = createElementFromHTML('div', voteContainerHtml);
   voteHolder = createElementFromHTML('div', voteHolderHtml);
   container = document.body.insertAdjacentElement('beforeend', containerElem);
@@ -266,6 +265,16 @@ async function startHost() {
     confirm("You need at least 2 responses to start a game");
     return;
   }*/
+  for (var i = 0; i < voteElements.length; i++) {
+    var style = window.getComputedStyle(voteElements[i]);
+    var color = inputStyle.getPropertyValue('background-color');
+
+    var vote = new Vote();
+    vote.name = voteElements[i].value;
+    vote.votes = 0;
+    vote.color = voteElements[i].style.backgroundColor;
+    info.votes.push(vote);
+  }
 
   if(setCheckboxes[0].html != null) {
     for(var i = 0; i < setCheckboxes.length; i++) {
@@ -277,6 +286,7 @@ async function startHost() {
   result = {
     value: null,
   }
+  console.log(info);
   POSTJSON(url, info, result);
   while(result.value == null) {
     await sleep(10);
@@ -291,23 +301,30 @@ async function startHost() {
 
 
 async function addResponse() {
-  var vote = new Vote();
-  vote.name = name;
-  vote.votes = 0;
-  info.votes.push(vote);
 
-  var voteHtml = '<input class="voteInput" type="text" style="color: white;" onsubmit="return false"/>';
+  var voteHtml = '<input class="voteInput" type="text" style="color: rgb(255, 255, 255); " placeholder="Write option" onsubmit="return false"/>';
   var voteElem = createElementFromHTML('input', voteHtml);
 
-  voteElem.style.backgroundColor = 'rgb(' + (Math.random()*200+55) + ',' + (Math.random()*200+55) + ',' + (Math.random()*200+55) + ')';
+  voteElem.style.backgroundColor = 'rgb(' + (Math.random()*200+20) + ',' + (Math.random()*200+20) + ',' + (Math.random()*200+20) + ')';
   voteHolder.insertAdjacentElement('beforeend', voteElem);
-
+  voteElem.focus();
   voteElements.push(voteElem);
   /*var url = "http://" + window.location.host + "/hostUpdate/" + info.id;
   var result = {
     value: null
   };
   POSTJSON(url, info, result);*/
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+function removeResponse() {
+  if() {
+    var lel = voteElements.pop();
+    lel.remove();
+  }
 }
 
 
