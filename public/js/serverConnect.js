@@ -12,6 +12,8 @@ var voteContainer;
 var voteHolder;
 var container;
 
+var _voteElements = [];
+
 class Vote {
   constructor() {
     this.name;
@@ -25,13 +27,15 @@ if(isPlayer) {
     if(info != null) {
       var url = "http://" + window.location.host + "/playerUpdate/" + info.id;
       var result = {
-        value: null
+        value;
       }
 
       POSTJSON(url, info, result);
       while(result.value == null) {
-        await sleep(10);
+        await sleep(20);
       }
+      console.log('This ran')
+      console.log(result.value);
       info = JSON.parse(result.value);
 
       url = "http://" + window.location.host + "/id/" + info.id;
@@ -147,6 +151,7 @@ async function join(floater, text, input, inputBar) {
   clearInterval(clearNumb);
   questionInput.value = questionInput.value.toUpperCase();
   await createPlayer(questionInput.value);
+
   if(info != null) {
     console.log("Succesfully connected to host");
     height(floater, 0, .4);
@@ -161,10 +166,22 @@ async function join(floater, text, input, inputBar) {
     inputBar.value = hostInfo.question + '?';
 
     for(var i = 0; i < hostInfo.votes.length; i++) {
-      var voteHtml = '<div class="bigButton" style="" onclick=""><p class="unselectable" style="margin: auto auto; text-align: center"> ' + hostInfo.votes[i].name + ' ' + '0%' + '</p></div>';
+
+      var voteHtml = '<div id="voteElem' + i + '" class="bigButton" style="" onmouseout="lowlight(\'' + i + '\')" onmouseover="highlight(\'' + i + '\')" onclick="updateButton(\'' + i + '\')"><p class="unselectable" style="margin: auto auto; text-align: center">' + hostInfo.votes[i].name + ' ' + '0%' + '</p></div>';
       var voteElem = createElementFromHTML('div', voteHtml);
       voteElem.style.backgroundColor = '' + hostInfo.votes[i].color;
       gId('main').insertAdjacentElement('beforeend', voteElem);
+      var c = voteElem.style.backgroundColor.split('(')[1].split(')')[0].split(', ');
+      var v = {
+        elem: voteElem,
+        selected: false,
+        col: {
+          r: c[0],
+          g: c[1],
+          b: c[2]
+        }
+      }
+      _voteElements.push(v);
     }
   }
 
@@ -177,6 +194,74 @@ async function join(floater, text, input, inputBar) {
     await sleep(75);
     translateX(inputBar, '0px', .05);
   }
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+function lowlight(index) {
+  var v = _voteElements[index];
+  var vStyle = v.elem.style;
+  var col = v.col;
+  var color = {
+    r: Number(col.r),
+    g: Number(col.g),
+    b: Number(col.b)
+  };
+
+  if(v.selected) {
+    color.r *= .6;
+    color.g *= .6;
+    color.b *= .6;
+  }
+
+  else {
+    color.r *= 1;
+    color.g *= 1;
+    color.b *= 1;
+  }
+
+  vStyle.backgroundColor = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+function highlight(index) {
+  var v = _voteElements[index];
+  var vStyle = v.elem.style;
+  var col = v.col;
+  var color = {
+    r: Number(col.r),
+    g: Number(col.g),
+    b: Number(col.b)
+  };
+
+  if(v.selected) {
+    color.r *= .5;
+    color.g *= .5;
+    color.b *= .5;
+  }
+  else {
+    color.r *= .9;
+    color.g *= .9;
+    color.b *= .9;
+  }
+
+  vStyle.backgroundColor = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+function updateButton(index) {
+  var v = _voteElements[index];
+  var vStyle = v.elem.style;
+  v.selected = !v.selected;
+  highlight(index);
 }
 
 
@@ -203,7 +288,7 @@ async function questionToSettings(floater, text, input, inputBar) {
   //inputBar.setAttribute("readonly", "");
   inputBar.style.textTransform = "none";
   input.style.maxWidth = "10000000px";
-  margin(input, "0 5%", .5);
+  margin(inputBar, "0 30%", .5);
 
   containerElem = createElementFromHTML('div', ebicHtml);
   nextButton = createElementFromHTML('div', nextButtonHtml);
@@ -213,10 +298,6 @@ async function questionToSettings(floater, text, input, inputBar) {
   voteContainer = createElementFromHTML('div', voteContainerHtml);
   voteHolder = createElementFromHTML('div', voteHolderHtml);
   container = document.body.insertAdjacentElement('beforeend', containerElem);
-
-  /*while(info == null) {
-    await sleep(10);
-  }*/
 
   for (var i = 0; i < info.settings.length; i++) {
     var containerThing = createElementFromHTML('div', '<div></div>');
@@ -266,13 +347,13 @@ async function startHost() {
     return;
   }*/
   for (var i = 0; i < voteElements.length; i++) {
-    var style = window.getComputedStyle(voteElements[i]);
+    var style = window.getComputedStyle(voteElements[i].elem);
     var color = inputStyle.getPropertyValue('background-color');
 
     var vote = new Vote();
-    vote.name = voteElements[i].value;
+    vote.name = voteElements[i].elem.value;
     vote.votes = 0;
-    vote.color = voteElements[i].style.backgroundColor;
+    vote.color = voteElements[i].elem.style.backgroundColor;
     info.votes.push(vote);
   }
 
@@ -301,19 +382,23 @@ async function startHost() {
 
 
 async function addResponse() {
-
-  var voteHtml = '<input class="voteInput" type="text" style="color: rgb(255, 255, 255); " placeholder="Write option" onsubmit="return false"/>';
+  var voteHtml = '<input class="voteInput" type="text" style="color: rgb(255, 255, 255);"  onblur="_blur(\'' + voteElements.length + '\')" onfocus="_focus(\'' + voteElements.length + '\')" onmouseout="_lowlight(\'' + voteElements.length + '\')" onmouseover="_highlight(\'' + voteElements.length + '\')" placeholder="Write answer" onsubmit="return false"/>';
   var voteElem = createElementFromHTML('input', voteHtml);
 
   voteElem.style.backgroundColor = 'rgb(' + (Math.random()*200+20) + ',' + (Math.random()*200+20) + ',' + (Math.random()*200+20) + ')';
   voteHolder.insertAdjacentElement('beforeend', voteElem);
   voteElem.focus();
-  voteElements.push(voteElem);
-  /*var url = "http://" + window.location.host + "/hostUpdate/" + info.id;
-  var result = {
-    value: null
-  };
-  POSTJSON(url, info, result);*/
+  var c = voteElem.style.backgroundColor.split('(')[1].split(')')[0].split(', ');
+  var v = {
+    elem: voteElem,
+    selected: false,
+    col: {
+      r: c[0],
+      g: c[1],
+      b: c[2]
+    }
+  }
+  voteElements.push(v);
 }
 
 
@@ -321,10 +406,87 @@ async function addResponse() {
 
 
 function removeResponse() {
-  if() {
+  if(voteElements.length > 0) {
     var lel = voteElements.pop();
-    lel.remove();
+    lel.elem.remove();
   }
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+function _focus(index) {
+  var v = voteElements[index];
+  v.selected = true;
+  _highlight(index);
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+function _blur(index) {
+  var v = voteElements[index];
+  v.selected = false;
+  _highlight(index);
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+function _lowlight(index) {
+  var v = voteElements[index];
+  var vStyle = v.elem.style;
+  var col = v.col;
+  var color = {
+    r: Number(col.r),
+    g: Number(col.g),
+    b: Number(col.b)
+  };
+
+  if(v.selected) {
+    color.r *= .6;
+    color.g *= .6;
+    color.b *= .6;
+  }
+
+  else {
+    color.r *= 1;
+    color.g *= 1;
+    color.b *= 1;
+  }
+
+  vStyle.backgroundColor = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+function _highlight(index) {
+  var v = voteElements[index];
+  var vStyle = v.elem.style;
+  var col = v.col;
+  var color = {
+    r: Number(col.r),
+    g: Number(col.g),
+    b: Number(col.b)
+  };
+
+  if(v.selected) {
+    color.r *= .5;
+    color.g *= .5;
+    color.b *= .5;
+  }
+  else {
+    color.r *= .9;
+    color.g *= .9;
+    color.b *= .9;
+  }
+
+  vStyle.backgroundColor = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
 }
 
 

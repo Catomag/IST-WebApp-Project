@@ -167,14 +167,13 @@ p {
   filter: brightness(100%);
 }
 
-.bigButton:hover {
-  /*background-color: rgb(72, 55, 98);*/
+/*.bigButton:hover {
   filter: brightness(85%);
 }
 
 .bigButton:active {
   filter: brightness(75%);
-}
+}*/
 
 .unselectable {
     -webkit-touch-callout: none;
