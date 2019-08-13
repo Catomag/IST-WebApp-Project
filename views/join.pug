@@ -1,7 +1,7 @@
 doctype 5
 html
   head
-    title Webzone Name
+    title Questionarieod?
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
     link(rel="stylesheet" type="text/css" href="/css/styles.css")
     script(src="/js/helper.js")
@@ -41,8 +41,8 @@ html
     div(id="main")
       div(id="floater")
       center
-        p(class="bigText sideToSide center unselectable" style="margin: 0 auto; width: 20%") Enter ID
+        p(class="bigText sideToSide center unselectable" style="margin: 0 auto; width: 40%") Enter ID
       br
       div(id="pin" class="center")
         form(onsubmit="join(gId('floater'), gClass('bigText')[0], gId('pin'), gId('questionInput')); return false")
-          input(type="text" id="questionInput" maxlength="4" style="text-align: center; text-transform:uppercase")
+          input(type="text" class="medText" id="questionInput" maxlength="4" style="text-align: center; text-transform:uppercase")

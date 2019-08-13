@@ -1,7 +1,7 @@
 doctype 5
 html
   head
-    title Webzone Name!
+    title Questionarieod?
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
     link(rel="stylesheet" type="text/css" href="/css/styles.css")
     script(src="/js/helper.js")
@@ -17,7 +17,7 @@ html
       br
       div(id="question" class="verticalCentre")
         form(onsubmit="if(info==null){questionToSettings(gId('floater'), gClass('bigText')[0], gId('question'), gId('questionInput'));}else{startHost();}return false")
-          input(type="text" id="questionInput" contenteditable="true" maxlength="40" style="padding-left: 10px")
+          input(type="text" class="medText" id="questionInput" contenteditable="true" maxlength="40" style="padding-left: 10px")
     br
     p(id="hostId")
     script.
@@ -29,5 +29,5 @@ html
       var centerInput = setInterval(() => {
         var inputStyle = window.getComputedStyle(gId('questionInput'));
         var width = Number(inputStyle.getPropertyValue('width').split('p')[0]);
-        gId('questionInput').style.margin = "0 calc(50vw - " + gId('questionInput').style.width + "px)";
+        gId('questionInput').style.margin = "0 calc(50vw - " + width/2 + "px)";
       }, 200);

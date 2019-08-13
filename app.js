@@ -64,7 +64,7 @@ setInterval(() => {
       hosts[i].lastupdate++;
     }
   }
-}, 4000);
+}, 2000);
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -156,12 +156,10 @@ app.post('/createPlayer/:id/', (req, res) => {
   if(host != null) {
     var player = new Player(makeid(playerIdLength));
     for (var i = 0; i < host.votes.length; i++) {
-      player.votes[i] = host.votes[i].votes;
+      player.votes.push(host.votes[i].votes);
     }
 
     host.players.push(player);
-    console.log(host);
-    console.log(player);
     res.json(player);
     return;
   }
@@ -180,7 +178,9 @@ app.post('/playerUpdate/:gameid/', (req, res) => {
   if(host != null) {
     for (var i = 0; i < host.players.length; i++) {
       if(host.players[i].id == player.id) {
-        host.players[i].votes = player.votes;
+        for (var j = 0; j < host.votes.length; j++) {
+          host.players[i].votes[j] = player.votes[j];
+        }
         host.players[i].lastupdate = 0;
         res.json(host.players[i]);
         return;

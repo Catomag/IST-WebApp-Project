@@ -5,10 +5,20 @@ html
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
     link(rel="stylesheet" type="text/css" href="/css/styles.css")
     script(src="/js/helper.js")
+    style.
+      html {
+        padding: 30px;
+        
+        font-size: calc(16pt + .75vw);
+      }
+      h1 {
+        font-size: calc(24pt + 1.5vw);
+      }
+      
 
   body
-    h1 Welcome to my Webzone!
-    p Navigate towards /join to join a game, or if you're feeling spicy create a game over at /create
+    h1 Welcome to my Questionarieod!
+    p This webzone allows you to quickly, and ethically, ask questions and get answers in REALTIME. Navigate towards /join to join a game, or if you're feeling spicy create a game over at /create
     - for(var i = 0; i < 100; i++) {
       br
     - }

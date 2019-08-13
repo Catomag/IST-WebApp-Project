@@ -12,6 +12,8 @@ var voteContainer;
 var voteHolder;
 var container;
 
+var lastSelectIndex = 0;
+
 var _voteElements = [];
 
 class Vote {
@@ -27,8 +29,17 @@ if(isPlayer) {
     if(info != null) {
 
       for (var i = 0; i < _voteElements.length; i++) {
-        if(_voteElements[i]) {
+        if(!hostInfo.settings[0].enabled) {
 
+        }
+
+        else {
+          if(_voteElements[i].selected) {
+            info.votes[i] = 1;
+          }
+          else {
+            info.votes[i] = 0;
+          }
         }
       }
 
@@ -39,7 +50,7 @@ if(isPlayer) {
 
       POSTJSON(url, info, result);
       while(result.value == null) {
-        await sleep(10);
+        await sleep(1);
       }
       info = JSON.parse(result.value);
 
@@ -50,15 +61,14 @@ if(isPlayer) {
 
       POST(url, result);
       while(result.value == null) {
-        await sleep(10);
+        await sleep(1);
       }
       hostInfo = JSON.parse(result.value);
 
       updatePlayer();
       console.log("Pinged server!");
-      time++;
     }
-  }, 50);
+  }, 100);
 }
 else {
   //Upadate host
@@ -79,14 +89,13 @@ else {
 
         POSTJSON(url, info, result);
         while(result.value == null) {
-          await sleep(10);
+          await sleep(1);
         }
         info = JSON.parse(result.value);
         console.log("Pinged server!");
-        time++;
       }
     }
-  }, 50);
+  }, 100);
 }
 
 
@@ -176,7 +185,11 @@ async function join(floater, text, input, inputBar) {
     inputBar.style.textTransform = "none";
     input.style.maxWidth = "10000000px";
     width(input, 80, .5);
-    inputBar.value = hostInfo.question + '?';
+    inputBar.value = hostInfo.question;
+    
+    if(hostInfo.question.charAt(hostInfo.question.length-1) != '?') {
+      inputBar.value += '?';
+    }
 
     for(var i = 0; i < hostInfo.votes.length; i++) {
 
@@ -275,14 +288,6 @@ function updateButton(index) {
   var vStyle = v.elem.style;
   v.selected = !v.selected;
   highlight(index);
-
-  if(v.selected) {
-    info.votes[index] = 1;
-  }
-
-  else {
-    info.votes[index] = 0;
-  }
 }
 
 
@@ -290,14 +295,14 @@ function updateButton(index) {
 
 
 async function questionToSettings(floater, text, input, inputBar) {
-  //clearInterval(centerInput);
+  clearInterval(centerInput);
   createHost();
   console.log("Succesfully connected to server");
 
   var ebicHtml = '<div id="settings"></div>';
   var checkbox = '<input type="checkBox" style="float: left; margin-top: 5px"/> <p type="checkBox" style="float: left; margin-top: 7.5px">sup peeps</p>';
   var voteContainerHtml = '<div id="votesContainer"></div>';
-  var voteHolderHtml = '<div style="background-color: rgb(63, 47, 71); height: 100%; width: 90%; overflow-y: auto"></div>';
+  var voteHolderHtml = '<div style="background-color: rgb(63, 47, 71); height: 100%; min-height: 130px; width: 90%; overflow-y: auto"></div>';
   var nextButtonHtml = '<div class="button" style="float: right" onclick="startHost()"><center><p class="unselectable">GO!</p></center></div>';
   var addButtonHtml = '<div id="plus" class="verticalCentre" style="float: right" onclick="addResponse()"><center><p class="unselectable">+</p></center></div>';
   var removeButtonHtml = '<div id="plus" class="verticalCentre" style="float: right" onclick="removeResponse()"><center><p class="unselectable">-</p></center></div>';
@@ -309,13 +314,13 @@ async function questionToSettings(floater, text, input, inputBar) {
   //inputBar.setAttribute("readonly", "");
   inputBar.style.textTransform = "none";
   input.style.maxWidth = "10000000px";
-  margin(inputBar, "0 30%", .5);
+  margin(inputBar, "0 20%", .5);
 
   containerElem = createElementFromHTML('div', ebicHtml);
   nextButton = createElementFromHTML('div', nextButtonHtml);
   addButton = createElementFromHTML('div', addButtonHtml);
   var removeButton = createElementFromHTML('div', removeButtonHtml);
-  var thing = createElementFromHTML('div', '<div style="width: 10%; backgroundColor: green; min-width: 82px; min-height: 65px;"></div>');
+  var thing = createElementFromHTML('div', '<div style="width: 10%; backgroundColor: green; min-width: 130px; min-height: 65px;"></div>');
   voteContainer = createElementFromHTML('div', voteContainerHtml);
   voteHolder = createElementFromHTML('div', voteHolderHtml);
   container = document.body.insertAdjacentElement('beforeend', containerElem);
@@ -403,7 +408,7 @@ async function startHost() {
 
 
 async function addResponse() {
-  var voteHtml = '<input class="voteInput" type="text" style="color: rgb(255, 255, 255);"  onblur="_blur(\'' + voteElements.length + '\')" onfocus="_focus(\'' + voteElements.length + '\')" onmouseout="_lowlight(\'' + voteElements.length + '\')" onmouseover="_highlight(\'' + voteElements.length + '\')" placeholder="Write answer" onsubmit="return false"/>';
+  var voteHtml = '<input class="voteInput medText" type="text" style="color: rgb(255, 255, 255);"  onblur="_blur(\'' + voteElements.length + '\')" onfocus="_focus(\'' + voteElements.length + '\')" onmouseout="_lowlight(\'' + voteElements.length + '\')" onmouseover="_highlight(\'' + voteElements.length + '\')" placeholder="Write answer" onsubmit="return false"/>';
   var voteElem = createElementFromHTML('input', voteHtml);
 
   voteElem.style.backgroundColor = 'rgb(' + (Math.random()*200+20) + ',' + (Math.random()*200+20) + ',' + (Math.random()*200+20) + ')';
@@ -521,10 +526,12 @@ function updatePlayer() {
   }
 
   for (var i = 0; i < _voteElements.length; i++) {
-    if(hostInfo.votes[i].votes == 0 || total == 0) {
+    if(isNaN((hostInfo.votes[i].votes/total)*100)) {
       _voteElements[i].elem.children[0].innerHTML = hostInfo.votes[i].name + ' ' + 0 + '%';
     }
-    _voteElements[i].elem.children[0].innerHTML = hostInfo.votes[i].name + ' ' + ((hostInfo.votes[i].votes/total)*100) + '%';
+    else {
+      _voteElements[i].elem.children[0].innerHTML = hostInfo.votes[i].name + ' ' + Math.round((hostInfo.votes[i].votes/total)*100) + '%';
+    }
   }
 }
 
