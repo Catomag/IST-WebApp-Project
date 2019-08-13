@@ -46,7 +46,7 @@ class Host {
 class Player {
   constructor(id) {
     this.id = id;
-    this.vote = null;
+    this.votes = [];
     this.lastupdate = 0;
   }
 }
@@ -155,11 +155,16 @@ app.post('/createPlayer/:id/', (req, res) => {
 
   if(host != null) {
     var player = new Player(makeid(playerIdLength));
+    for (var i = 0; i < host.votes.length; i++) {
+      player.votes[i] = host.votes[i].votes;
+    }
+
     host.players.push(player);
+    console.log(host);
+    console.log(player);
     res.json(player);
     return;
   }
-  console.log('Host was null');
   res.json(null);
 });
 
@@ -175,14 +180,43 @@ app.post('/playerUpdate/:gameid/', (req, res) => {
   if(host != null) {
     for (var i = 0; i < host.players.length; i++) {
       if(host.players[i].id == player.id) {
-        console.log('Player updated');
-        host.players[i] = player;
+        host.players[i].votes = player.votes;
+        host.players[i].lastupdate = 0;
         res.json(host.players[i]);
         return;
       }
     }
   }
-  console.log('Host was null');
+  res.json(null);
+});
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+//Gets ping from server so its still active
+app.post('/hostUpdate/:id/', (req, res) => {
+  var id = req.params.id;
+  var host = hosts[getHostIndex(id)];
+
+  if(host != null) {
+    for (var i = 0; i < host.players.length; i++) {
+      if(host.players[i].lastupdate > 15) {
+        host.players.splice(i, 1);
+      }
+      else {
+        host.players[i].lastupdate++;
+      }
+    }
+
+    for (var i = 0; i < host.votes.length; i++) {
+      host.votes[i] = req.body.votes[i];
+    }
+
+    host.lastupdate = 0;
+    res.json(host);
+    return;
+  }
   res.json(null);
 });
 
@@ -193,10 +227,10 @@ app.post('/playerUpdate/:gameid/', (req, res) => {
 app.post('/removePlayer/:id/', (req, res) => {
   var gameid = req.params.gameid;
   var player = req.body;
-  var host = getHost(gameid);
+  var host = hosts[getHostIndex(gameid)];
   for (var i = 0; i < host.players.length; i++) {
-    if(host.players[i] == player) {
-      host.splice(i, 1);
+    if(host.players[i].id == player.id) {
+      host.players.splice(i, 1);
       return;
     }
   }
@@ -225,22 +259,6 @@ app.post('/id/:id/', (req, res) => {
 
 //If no id is provided return null (Fixed an issue I had)
 app.post('/id/', (req, res) => {
-  res.json(null);
-});
-
-
-//----------------------------------------------------------------------------------------------------------------------
-
-
-//Gets ping from server so its still active
-app.post('/hostUpdate/:id/', (req, res) => {
-  var id = req.params.id;
-  var host = hosts[getHostIndex(id)];
-  if(host != null) {
-    host.lastupdate = 0;
-    res.json(host);
-    return;
-  }
   res.json(null);
 });
 

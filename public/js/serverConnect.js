@@ -25,20 +25,25 @@ class Vote {
 if(isPlayer) {
   var ping = setInterval(async () => {
     if(info != null) {
-      var url = "http://" + window.location.host + "/playerUpdate/" + info.id;
+
+      for (var i = 0; i < _voteElements.length; i++) {
+        if(_voteElements[i]) {
+
+        }
+      }
+
+      var url = "http://" + window.location.host + "/playerUpdate/" + hostInfo.id;
       var result = {
-        value;
+        value: null
       }
 
       POSTJSON(url, info, result);
       while(result.value == null) {
-        await sleep(20);
+        await sleep(10);
       }
-      console.log('This ran')
-      console.log(result.value);
       info = JSON.parse(result.value);
 
-      url = "http://" + window.location.host + "/id/" + info.id;
+      url = "http://" + window.location.host + "/id/" + hostInfo.id;
       result = {
         value: null
       }
@@ -49,16 +54,24 @@ if(isPlayer) {
       }
       hostInfo = JSON.parse(result.value);
 
+      updatePlayer();
       console.log("Pinged server!");
       time++;
     }
-  }, 100);
+  }, 50);
 }
 else {
   //Upadate host
   var ping = setInterval(async () => {
     if(info != null) {
       if(info.id != "") {
+        for (var i = 0; i < info.votes.length; i++) {
+          info.votes[i].votes = 0;
+          for (var j = 0; j < info.players.length; j++) {
+            info.votes[i].votes += info.players[j].votes[i];
+          }
+        }
+
         var url = "http://" + window.location.host + "/hostUpdate/" + info.id;
         var result = {
           value: null
@@ -73,7 +86,7 @@ else {
         time++;
       }
     }
-  }, 100);
+  }, 50);
 }
 
 
@@ -167,7 +180,7 @@ async function join(floater, text, input, inputBar) {
 
     for(var i = 0; i < hostInfo.votes.length; i++) {
 
-      var voteHtml = '<div id="voteElem' + i + '" class="bigButton" style="" onmouseout="lowlight(\'' + i + '\')" onmouseover="highlight(\'' + i + '\')" onclick="updateButton(\'' + i + '\')"><p class="unselectable" style="margin: auto auto; text-align: center">' + hostInfo.votes[i].name + ' ' + '0%' + '</p></div>';
+      var voteHtml = '<div id="voteElem' + i + '" class="bigButton" onmouseout="lowlight(\'' + i + '\')" onmouseover="highlight(\'' + i + '\')" onclick="updateButton(\'' + i + '\')"><p class="unselectable" style="margin: auto auto; text-align: center">' + hostInfo.votes[i].name + ' ' + '0%' + '</p></div>';
       var voteElem = createElementFromHTML('div', voteHtml);
       voteElem.style.backgroundColor = '' + hostInfo.votes[i].color;
       gId('main').insertAdjacentElement('beforeend', voteElem);
@@ -262,6 +275,14 @@ function updateButton(index) {
   var vStyle = v.elem.style;
   v.selected = !v.selected;
   highlight(index);
+
+  if(v.selected) {
+    info.votes[index] = 1;
+  }
+
+  else {
+    info.votes[index] = 0;
+  }
 }
 
 
@@ -387,7 +408,6 @@ async function addResponse() {
 
   voteElem.style.backgroundColor = 'rgb(' + (Math.random()*200+20) + ',' + (Math.random()*200+20) + ',' + (Math.random()*200+20) + ')';
   voteHolder.insertAdjacentElement('beforeend', voteElem);
-  voteElem.focus();
   var c = voteElem.style.backgroundColor.split('(')[1].split(')')[0].split(', ');
   var v = {
     elem: voteElem,
@@ -399,6 +419,7 @@ async function addResponse() {
     }
   }
   voteElements.push(v);
+  voteElem.focus();
 }
 
 
@@ -487,6 +508,24 @@ function _highlight(index) {
   }
 
   vStyle.backgroundColor = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+function updatePlayer() {
+  var total = 0;
+  for (var i = 0; i < hostInfo.votes.length; i++) {
+    total += hostInfo.votes[i].votes;
+  }
+
+  for (var i = 0; i < _voteElements.length; i++) {
+    if(hostInfo.votes[i].votes == 0 || total == 0) {
+      _voteElements[i].elem.children[0].innerHTML = hostInfo.votes[i].name + ' ' + 0 + '%';
+    }
+    _voteElements[i].elem.children[0].innerHTML = hostInfo.votes[i].name + ' ' + ((hostInfo.votes[i].votes/total)*100) + '%';
+  }
 }
 
 
