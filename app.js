@@ -208,14 +208,14 @@ app.post('/hostUpdate/:id/', (req, res) => {
   var host = hosts[getHostIndex(id)];
 
   if(host != null) {
-    for (var i = 0; i < host.players.length; i++) {
+    /*for (var i = 0; i < host.players.length; i++) {
       if(host.players[i].lastupdate > 15) {
         host.players.splice(i, 1);
       }
       else {
         host.players[i].lastupdate++;
       }
-    }
+    }*/
 
     for (var i = 0; i < host.votes.length; i++) {
       host.votes[i] = req.body.votes[i];

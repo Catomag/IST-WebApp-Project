@@ -29,18 +29,18 @@ if(isPlayer) {
     if(info != null) {
 
       for (var i = 0; i < _voteElements.length; i++) {
-        if(!hostInfo.settings[0].enabled) {
-
+        /*if(!hostInfo.settings[0].enabled) {
+          info.
         }
 
-        else {
+        else {*/
           if(_voteElements[i].selected) {
             info.votes[i] = 1;
           }
           else {
             info.votes[i] = 0;
           }
-        }
+        //}
       }
 
       var url = "http://" + window.location.host + "/playerUpdate/" + hostInfo.id;
@@ -93,6 +93,7 @@ else {
         }
         info = JSON.parse(result.value);
         console.log("Pinged server!");
+        updateHost();
       }
     }
   }, 100);
@@ -179,8 +180,6 @@ async function join(floater, text, input, inputBar) {
     gId('main').insertAdjacentElement('beforeend', voteContainer);
     console.log("Succesfully connected to host");
     voteContainer.style.margin = '0 auto';
-    var centER = createElementFromHTML('center', '<center></center>');;
-    voteContainer.insertAdjacentElement('beforeend', centER);
     height(floater, 0, .4);
     text.classList.remove("sideToSide");
     scale(text, 0, .2);
@@ -197,10 +196,10 @@ async function join(floater, text, input, inputBar) {
     }
 
     for(var i = 0; i < hostInfo.votes.length; i++) {
-      var voteHtml = '<div id="voteElem' + i + '" class="voteInput" onmouseout="lowlight(\'' + i + '\')" onmouseover="highlight(\'' + i + '\')" onclick="updateButton(\'' + i + '\')"><p class="unselectable medText" style="margin: auto auto; text-align: center">' + hostInfo.votes[i].name + ' ' + '0%' + '</p></div>';
+      var voteHtml = '<div id="voteElem' + i + '" class="voteInput" onmouseout="lowlight(\'' + i + '\')" onmouseover="highlight(\'' + i + '\')" onclick="updateButton(\'' + i + '\')"><p class="unselectable medText" style="width: 100%; height: 100%; margin: auto auto; text-align: center">' + hostInfo.votes[i].name + ' ' + '0%' + '</p></div>';
       var voteElem = createElementFromHTML('div', voteHtml);
       voteElem.style.backgroundColor = '' + hostInfo.votes[i].color;
-      centER.insertAdjacentElement('beforeend', voteElem);
+      voteContainer.insertAdjacentElement('beforeend', voteElem);
       var c = voteElem.style.backgroundColor.split('(')[1].split(')')[0].split(', ');
       var v = {
         elem: voteElem,
@@ -292,6 +291,18 @@ function updateButton(index) {
   var vStyle = v.elem.style;
   v.selected = !v.selected;
   highlight(index);
+  if(!hostInfo.settings[0].enabled) {
+    for(var i = 0; i < _voteElements.length; i++) {
+      if(i != index) {
+        _voteElements[i].selected = false;
+        highlight(i);
+      }
+    }
+
+    if(v.selected) {
+      lastSelectIndex = index;
+    }
+  }
 }
 
 
@@ -550,6 +561,51 @@ async function create(floater, text, input, inputBar) {
   containerElem.remove();
   input.remove();
   inputBar.remove();
-  text.innerHTML = 'Here\'s the results!';
-  fontSize(text, 'calc(28pt + 2vw)', 1);
+  height(floater, 2, .1);
+  text.innerHTML = 'Join with: ' + info.id + '! 0 players voted';
+  fontSize(text, 'calc(24pt + 1.25vw)', 1);
+
+  var voteContainer = createElementFromHTML('div', '<div id="votesPickMenu"></div>');
+  gId('main').insertAdjacentElement('beforeend', voteContainer);
+  console.log("Succesfully connected to host");
+  voteContainer.style.margin = '0 auto';
+
+  for(var i = 0; i < info.votes.length; i++) {
+    var voteHtml = '<div id="voteElem' + i + '" class="voteInput"><p class="unselectable medText" style="width: 100%; height: 100%; margin: auto auto; text-align: center">' + info.votes[i].name + ' ' + '0%' + '</p></div>';
+    var voteElem = createElementFromHTML('div', voteHtml);
+    voteElem.style.backgroundColor = '' + info.votes[i].color;
+    voteContainer.insertAdjacentElement('beforeend', voteElem);
+    var c = voteElem.style.backgroundColor.split('(')[1].split(')')[0].split(', ');
+    var v = {
+      elem: voteElem,
+      selected: false,
+      col: {
+        r: c[0],
+        g: c[1],
+        b: c[2]
+      }
+    }
+    _voteElements.push(v);
+  }
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+async function updateHost() {
+  gId('text').innerHTML = 'Join with: ' + info.id + '! ' + info.players.length + ' players voted';
+  var total = 0;
+  for (var i = 0; i < info.votes.length; i++) {
+    total += info.votes[i].votes;
+  }
+
+  for (var i = 0; i < _voteElements.length; i++) {
+    if(isNaN((info.votes[i].votes/total)*100)) {
+      _voteElements[i].elem.children[0].innerHTML = info.votes[i].name + ' ' + 0 + '%';
+    }
+    else {
+      _voteElements[i].elem.children[0].innerHTML = info.votes[i].name + ' ' + Math.round((info.votes[i].votes/total)*100) + '%';
+    }
+  }
 }
