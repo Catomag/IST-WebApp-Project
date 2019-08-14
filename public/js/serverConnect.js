@@ -175,7 +175,12 @@ async function join(floater, text, input, inputBar) {
   await createPlayer(questionInput.value);
 
   if(info != null) {
+    var voteContainer = createElementFromHTML('div', '<div id="votesPickMenu"></div>');
+    gId('main').insertAdjacentElement('beforeend', voteContainer);
     console.log("Succesfully connected to host");
+    voteContainer.style.margin = '0 auto';
+    var centER = createElementFromHTML('center', '<center></center>');;
+    voteContainer.insertAdjacentElement('beforeend', centER);
     height(floater, 0, .4);
     text.classList.remove("sideToSide");
     scale(text, 0, .2);
@@ -186,17 +191,16 @@ async function join(floater, text, input, inputBar) {
     input.style.maxWidth = "10000000px";
     width(input, 80, .5);
     inputBar.value = hostInfo.question;
-    
+
     if(hostInfo.question.charAt(hostInfo.question.length-1) != '?') {
       inputBar.value += '?';
     }
 
     for(var i = 0; i < hostInfo.votes.length; i++) {
-
-      var voteHtml = '<div id="voteElem' + i + '" class="bigButton" onmouseout="lowlight(\'' + i + '\')" onmouseover="highlight(\'' + i + '\')" onclick="updateButton(\'' + i + '\')"><p class="unselectable" style="margin: auto auto; text-align: center">' + hostInfo.votes[i].name + ' ' + '0%' + '</p></div>';
+      var voteHtml = '<div id="voteElem' + i + '" class="voteInput" onmouseout="lowlight(\'' + i + '\')" onmouseover="highlight(\'' + i + '\')" onclick="updateButton(\'' + i + '\')"><p class="unselectable medText" style="margin: auto auto; text-align: center">' + hostInfo.votes[i].name + ' ' + '0%' + '</p></div>';
       var voteElem = createElementFromHTML('div', voteHtml);
       voteElem.style.backgroundColor = '' + hostInfo.votes[i].color;
-      gId('main').insertAdjacentElement('beforeend', voteElem);
+      centER.insertAdjacentElement('beforeend', voteElem);
       var c = voteElem.style.backgroundColor.split('(')[1].split(')')[0].split(', ');
       var v = {
         elem: voteElem,
@@ -303,7 +307,7 @@ async function questionToSettings(floater, text, input, inputBar) {
   var checkbox = '<input type="checkBox" style="float: left; margin-top: 5px"/> <p type="checkBox" style="float: left; margin-top: 7.5px">sup peeps</p>';
   var voteContainerHtml = '<div id="votesContainer"></div>';
   var voteHolderHtml = '<div style="background-color: rgb(63, 47, 71); height: 100%; min-height: 130px; width: 90%; overflow-y: auto"></div>';
-  var nextButtonHtml = '<div class="button" style="float: right" onclick="startHost()"><center><p class="unselectable">GO!</p></center></div>';
+  var nextButtonHtml = '<div class="button" style="float: right" onclick="startHost(); create(gId(\'floater\'), gClass(\'bigText\')[0], gId(\'question\'), gId(\'questionInput\'));"><center><p class="unselectable">GO!</p></center></div>';
   var addButtonHtml = '<div id="plus" class="verticalCentre" style="float: right" onclick="addResponse()"><center><p class="unselectable">+</p></center></div>';
   var removeButtonHtml = '<div id="plus" class="verticalCentre" style="float: right" onclick="removeResponse()"><center><p class="unselectable">-</p></center></div>';
 
@@ -540,5 +544,12 @@ function updatePlayer() {
 
 
 async function create(floater, text, input, inputBar) {
-
+  scaleY(containerElem, 0.01, .3);
+  scaleY(input, 0.01, .3);
+  await sleep(300);
+  containerElem.remove();
+  input.remove();
+  inputBar.remove();
+  text.innerHTML = 'Here\'s the results!';
+  fontSize(text, 'calc(28pt + 2vw)', 1);
 }
